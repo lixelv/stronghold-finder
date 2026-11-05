@@ -102,7 +102,7 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
 
     @Override
     public boolean isInteractable(ElementRenderLocation location, MapMark mark) {
-        return !(mark instanceof MapMark.RayMark || mark instanceof MapMark.ErrorCircleMark);
+        return !(mark instanceof MapMark.RayMark || mark instanceof MapMark.CircleMark);
     }
 
     @Override
@@ -137,14 +137,13 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
                         t.source().id(),
                         NumberText.coordinate(t.source().x()),
                         NumberText.coordinate(t.source().z()),
-                        NumberText.angle(t.source().yaw()),
+                        NumberText.exact(t.source().yaw()),
                         Component.translatable("stronghold_finder." + side.key())));
             }
             case MapMark.PairMark p -> new Tooltip(Component.translatable(
                     "map.stronghold_finder.pair",
                     p.pair().a().id(), p.pair().b().id(), x, z, String.format(java.util.Locale.ROOT, "%.1f", p.pair().angle())));
-            case MapMark.MeanMark m -> new Tooltip(Component.translatable(
-                    "map.stronghold_finder.mean", x, z, Math.round(m.err())));
+            case MapMark.MeanMark m -> new Tooltip(Component.translatable("map.stronghold_finder.mean", x, z));
             default -> null;
         };
     }

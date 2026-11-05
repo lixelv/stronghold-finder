@@ -21,7 +21,7 @@ public sealed interface MapMark {
         }
     }
 
-    record ErrorCircleMark(Point center, double radius) implements MapMark {
+    record CircleMark(Point center, double radius) implements MapMark {
         @Override
         public double x() {
             return center.x();
@@ -57,7 +57,7 @@ public sealed interface MapMark {
         }
     }
 
-    record MeanMark(Point point, double err) implements MapMark {
+    record MeanMark(Point point, boolean diamond) implements MapMark {
         @Override
         public double x() {
             return point.x();

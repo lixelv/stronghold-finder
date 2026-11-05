@@ -17,7 +17,7 @@ Stronghold Finder works out where a stronghold is from two or more Eye of Ender 
 ### What you get
 
 - Every ray, crossing, and the average point drawn on the full-screen world map
-- An error estimate, shown as a circle on the map
+- A 25-block circle around the average point on the map
 - A gold waypoint on [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap), if you have it, that moves by itself when the throws change
 - Coordinates in the Overworld and the Nether, plus the chunk and the stronghold ring
 - Advice on where to walk for the next throw
@@ -46,8 +46,8 @@ The code is on [GitHub](https://github.com/lixelv/stronghold-finder) under the M
 |---|---|---|
 | `stronghold-finder-01-aim-at-eye.png` | Add a ray | Aim at the flying eye and press `G`, or press `Shift+G` and let the mod read it. |
 | `stronghold-finder-02-rays-on-map.png` | Rays on the map | Three throws and the point where they meet on Xaero's World Map. |
-| `stronghold-finder-03-crossings-and-average.png` | Crossings and average | Each crossing, the average point, and the error circle. |
-| `stronghold-finder-04-result-screen.png` | Result screen | Coordinates, error, direction, and the list of throws. |
+| `stronghold-finder-03-crossings-and-average.png` | Crossings and average | Each crossing, the average point, and the circle around it. |
+| `stronghold-finder-04-result-screen.png` | Result screen | Coordinates, direction, and the list of throws. |
 | `stronghold-finder-05-result-screen-russian.png` | Russian interface | The interface follows the game language. |
 
 ## Project settings

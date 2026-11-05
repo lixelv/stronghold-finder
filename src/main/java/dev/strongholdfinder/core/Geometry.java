@@ -1,5 +1,7 @@
 package dev.strongholdfinder.core;
 
+import java.math.BigDecimal;
+
 public final class Geometry {
     /** Each row is {inner radius, outer radius, stronghold count}. */
     public static final int[][] RINGS = {
@@ -17,11 +19,15 @@ public final class Geometry {
     }
 
     public static double normYaw(double yaw) {
-        if (yaw > -180 && yaw <= 180) {
+        if ((yaw > -180 && yaw <= 180) || !Double.isFinite(yaw)) {
             return yaw;
         }
-        double wrapped = Math.round((((yaw + 180) % 360 + 360) % 360 - 180) * 1e9) / 1e9;
-        return wrapped == -180 ? 180 : wrapped;
+        // In decimal, so wrapping 312.7 gives exactly -47.3: nothing is rounded and no float noise appears.
+        BigDecimal turn = BigDecimal.valueOf(360);
+        BigDecimal half = BigDecimal.valueOf(180);
+        BigDecimal shifted = BigDecimal.valueOf(yaw).add(half).remainder(turn);
+        BigDecimal wrapped = (shifted.signum() < 0 ? shifted.add(turn) : shifted).subtract(half);
+        return wrapped.compareTo(half.negate()) == 0 ? 180 : wrapped.doubleValue();
     }
 
     public static Point dir(double yaw) {

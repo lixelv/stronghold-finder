@@ -76,7 +76,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
             pose.translate((float) partialX, (float) partialY, 0f);
             switch (mark) {
                 case MapMark.RayMark ray -> drawRay(ray.source(), frame, pose, graphics);
-                case MapMark.ErrorCircleMark circle -> drawCircle(circle.radius() * frame.scale, frame, pose, graphics);
+                case MapMark.CircleMark circle -> drawCircle(circle.radius() * frame.scale, frame, pose, graphics);
                 case MapMark.PairMark pair -> {
                     drawLabel(frame.pairLabels.get(pair.pair().key()), MapFrame.pairText(pair.pair()), mark, frame, pose, graphics, font);
                     pose.scale(frame.ui, frame.ui, 1f);
@@ -86,7 +86,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
                     pose.scale(frame.ui, frame.ui, 1f);
                     drawThrow(throwMark.source(), graphics, font);
                 }
-                case MapMark.MeanMark mean -> drawMean(mean.point(), frame, pose, graphics, font);
+                case MapMark.MeanMark mean -> drawMean(mean, frame, pose, graphics, font);
             }
         } catch (Throwable error) {
             XaeroBridge.disable(error);
@@ -153,7 +153,8 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         graphics.drawString(font, number, -font.width(number) / 2, -4, WHITE, false);
     }
 
-    private static void drawMean(Point point, MapFrame frame, PoseStack pose, MapElementGraphics graphics, Font font) {
+    private static void drawMean(MapMark.MeanMark mean, MapFrame frame, PoseStack pose, MapElementGraphics graphics, Font font) {
+        Point point = mean.point();
         String text = "X " + Math.round(point.x()) + ", Z " + Math.round(point.z());
         LabelPlacer.Box box = frame.meanLabel;
         if (box != null) {
@@ -165,6 +166,9 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
             graphics.fill(0, 0, width, height, PANEL);
             graphics.drawString(font, text, MapFrame.MEAN_PADDING, MapFrame.MEAN_PADDING, MEAN_COLOR, false);
             pose.popPose();
+        }
+        if (!mean.diamond()) {
+            return;
         }
         pose.scale(frame.ui, frame.ui, 1f);
         pose.rotateDegrees(Axis.ZP, 45);

@@ -18,12 +18,16 @@ import net.minecraft.network.chat.Component;
 final class ThrowListWidget extends ContainerObjectSelectionList<ThrowListWidget.Row> {
     static final int ROW_HEIGHT = 18;
     private static final int LEFT = 14;
-    private static final int GAP = 6;
+    private static final int GAP = 4;
     private static final int BUTTONS = 34 + 2;
     /** {coordinate decimals, angle decimals}, tried in order until the row fits. The saved numbers keep every digit. */
     private static final int[][] PRECISIONS = {
         {NumberText.COORDINATE_DECIMALS, NumberText.ANGLE_DECIMALS},
-        {1, 2},
+        {NumberText.COORDINATE_DECIMALS, 4},
+        {NumberText.COORDINATE_DECIMALS, 3},
+        {NumberText.COORDINATE_DECIMALS, 2},
+        {2, 2},
+        {1, 1},
         {0, 1},
     };
 

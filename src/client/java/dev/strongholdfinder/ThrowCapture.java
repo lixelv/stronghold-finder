@@ -95,7 +95,6 @@ final class ThrowCapture {
                 "message.stronghold_finder.added_result",
                 store.lastAddedId(),
                 Math.round(solution.mean().x()),
-                Math.round(solution.mean().z()),
-                Math.round(solution.err())));
+                Math.round(solution.mean().z())));
     }
 }

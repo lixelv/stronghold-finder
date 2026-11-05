@@ -15,6 +15,9 @@ import net.minecraft.client.gui.Font;
 
 /** What the layer draws this frame: the marks in order and where their labels go, all in pixels from the view center. */
 final class MapFrame {
+    /** Blocks around the average point: the area to dig in, whatever the numbers say. */
+    private static final double CIRCLE_RADIUS = 25;
+
     static final int LABEL_HEIGHT = 9;
     static final int MEAN_PADDING = 3;
 
@@ -47,12 +50,12 @@ final class MapFrame {
 
         throwsList.forEach(t -> marks.add(new MapMark.RayMark(t)));
         if (solution.mean() != null) {
-            marks.add(new MapMark.ErrorCircleMark(solution.mean(), solution.err()));
+            marks.add(new MapMark.CircleMark(solution.mean(), CIRCLE_RADIUS));
         }
         crossings.forEach(p -> marks.add(new MapMark.PairMark(p)));
         throwsList.forEach(t -> marks.add(new MapMark.ThrowMark(t)));
-        if (solution.mean() != null && !MinimapBridge.showsPoint()) {
-            marks.add(new MapMark.MeanMark(solution.mean(), solution.err()));
+        if (solution.mean() != null) {
+            marks.add(new MapMark.MeanMark(solution.mean(), !MinimapBridge.showsPoint()));
         }
 
         LabelPlacer placer = new LabelPlacer(-width / 2, -height / 2, width / 2, height / 2);

@@ -49,21 +49,21 @@ class GoldPointTest {
     }
 
     @Test
-    void nameFollowsTheLanguageAndRoundsTheErrorUp() {
-        assertEquals("Stronghold ±15", GoldPointName.of(false, 14.2));
-        assertEquals("Крепость ±15", GoldPointName.of(true, 14.2));
+    void nameFollowsTheLanguage() {
+        assertEquals("Stronghold", GoldPointName.of(false));
+        assertEquals("Крепость", GoldPointName.of(true));
     }
 
     @Test
-    void zeroErrorHasNoMinus() {
-        assertEquals("Stronghold ±0", GoldPointName.of(false, 0));
-        assertEquals("Stronghold ±0", GoldPointName.of(false, -0.0));
+    void waypointsNamedByOlderVersionsAreStillOurs() {
+        assertTrue(GoldPointName.isOurs("Stronghold ±15"));
+        assertTrue(GoldPointName.isOurs("Крепость ±15"));
     }
 
     @Test
     void bothLanguagesAreRecognized() {
-        assertTrue(GoldPointName.isOurs(GoldPointName.of(false, 3)));
-        assertTrue(GoldPointName.isOurs(GoldPointName.of(true, 3)));
+        assertTrue(GoldPointName.isOurs(GoldPointName.of(false)));
+        assertTrue(GoldPointName.isOurs(GoldPointName.of(true)));
         assertFalse(GoldPointName.isOurs("Home"));
         assertFalse(GoldPointName.isOurs(null));
     }

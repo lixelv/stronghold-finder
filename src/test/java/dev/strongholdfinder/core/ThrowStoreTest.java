@@ -203,6 +203,16 @@ class ThrowStoreTest {
     }
 
     @Test
+    void savedNumbersKeepEveryDigit() {
+        ThrowStore store = store("exact");
+        store.add(new ThrowInput(632.123456789012, -279.98765432109876, -113.94986041416706));
+        Throw loaded = store("exact").throwsList().get(0);
+        assertEquals(632.123456789012, loaded.x());
+        assertEquals(-279.98765432109876, loaded.z());
+        assertEquals(-113.94986041416706, loaded.yaw());
+    }
+
+    @Test
     void savesFromOlderVersionsStillLoad() throws IOException {
         Files.writeString(dir.resolve("old.json"), """
                 {"throwsList":[{"id":1,"x":10.5,"z":-20.0,"yaw":-47.3,"on":true},{"id":2,"x":0.0,"z":0.0,"yaw":12.0,"on":false}],

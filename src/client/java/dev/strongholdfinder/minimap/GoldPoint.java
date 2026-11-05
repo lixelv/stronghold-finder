@@ -44,7 +44,7 @@ final class GoldPoint {
             int x = (int) Math.round(solution.mean().x());
             int z = (int) Math.round(solution.mean().z());
             boolean russian = client.getLanguageManager().getSelected().startsWith("ru");
-            String name = GoldPointName.of(russian, solution.err());
+            String name = GoldPointName.of(russian);
             if (action == GoldPointAction.CREATE) {
                 set.add(new Waypoint(x, Y, z, name, SYMBOL, WaypointColor.GOLD));
             } else {

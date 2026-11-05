@@ -8,8 +8,8 @@ public final class GoldPointName {
     private GoldPointName() {
     }
 
-    public static String of(boolean russian, double err) {
-        return (russian ? RUSSIAN : ENGLISH) + " ±" + (long) Math.ceil(err);
+    public static String of(boolean russian) {
+        return russian ? RUSSIAN : ENGLISH;
     }
 
     public static boolean isOurs(String name) {

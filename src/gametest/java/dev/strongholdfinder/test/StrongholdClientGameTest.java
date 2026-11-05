@@ -372,7 +372,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         double err = context.computeOnClient(client -> store.solution().err());
         int fps = context.computeOnClient(client -> client.getFps());
         System.out.println("SFTEST error circle err=" + err + " fps=" + fps);
-        context.takeScreenshot("map_1080p_error_circle");
+        context.takeScreenshot("map_1080p_circle");
         context.setScreen(() -> null);
         input.resizeWindow(854, 480);
         context.waitTicks(5);

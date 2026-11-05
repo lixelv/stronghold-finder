@@ -67,8 +67,6 @@ final class ResultPanel {
         at += 9 * scale + 5;
 
         int gap = width / 2;
-        at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.error"),
-                Component.translatable("screen.stronghold_finder.blocks", "±" + Math.round(s.err())));
         at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.walk", s.last().id()),
                 Component.translatable("screen.stronghold_finder.walk_value",
                         Math.round(s.toLast()), argument(Geometry.compass(s.yawNext()))));
