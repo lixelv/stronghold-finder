@@ -190,4 +190,41 @@ class ThrowStoreTest {
             assertEquals(1, files.count());
         }
     }
+
+    @Test
+    void bothRayTypesSurviveASaveAndLoad() {
+        ThrowStore store = store("rays");
+        Ray two = new TwoPointRay(new Point(10, 20), new Point(10.3, 20.4));
+        store.add(two);
+        store.add(new ThrowInput(1, 2, -47.3));
+        List<Throw> loaded = store("rays").throwsList();
+        assertEquals(two, loaded.get(0).ray());
+        assertEquals(new AngleRay(new Point(1, 2), -47.3), loaded.get(1).ray());
+    }
+
+    @Test
+    void savesFromOlderVersionsStillLoad() throws IOException {
+        Files.writeString(dir.resolve("old.json"), """
+                {"throwsList":[{"id":1,"x":10.5,"z":-20.0,"yaw":-47.3,"on":true},{"id":2,"x":0.0,"z":0.0,"yaw":12.0,"on":false}],
+                 "over":{},"next":3,"overlayVisible":true}""");
+        List<Throw> loaded = store("old").throwsList();
+        assertEquals(new Throw(1, 10.5, -20, -47.3, true), loaded.get(0));
+        assertEquals(new Throw(2, 0, 0, 12, false), loaded.get(1));
+    }
+
+    @Test
+    void aSaveWithAnEndlessAngleIsBackedUp() throws IOException {
+        Files.writeString(dir.resolve("endless.json"), """
+                {"throwsList":[{"id":1,"x":1.0,"z":1.0,"yaw":1e999,"on":true}],"over":{},"next":2,"overlayVisible":true}""");
+        assertTrue(store("endless").throwsList().isEmpty());
+        assertTrue(Files.exists(dir.resolve("endless.json.bak")));
+    }
+
+    @Test
+    void aSaveWithOnePointGivenTwiceIsBackedUp() throws IOException {
+        Files.writeString(dir.resolve("bad.json"), """
+                {"throwsList":[{"id":1,"x":1.0,"z":1.0,"toX":1.0,"toZ":1.0,"on":true}],"over":{},"next":2,"overlayVisible":true}""");
+        assertTrue(store("bad").throwsList().isEmpty());
+        assertTrue(Files.exists(dir.resolve("bad.json.bak")));
+    }
 }

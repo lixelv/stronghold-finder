@@ -15,5 +15,8 @@
     "java": ">=25",
     "fabric-api": "*",
     "xaeroworldmap": ">=1.47.2 <1.48"
+  },
+  "suggests": {
+    "xaerominimap": "*"
   }
 }

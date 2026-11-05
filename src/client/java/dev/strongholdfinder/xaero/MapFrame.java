@@ -5,6 +5,7 @@ import dev.strongholdfinder.core.Pair;
 import dev.strongholdfinder.core.Solution;
 import dev.strongholdfinder.core.Throw;
 import dev.strongholdfinder.core.ThrowStore;
+import dev.strongholdfinder.minimap.MinimapBridge;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ final class MapFrame {
         }
         crossings.forEach(p -> marks.add(new MapMark.PairMark(p)));
         throwsList.forEach(t -> marks.add(new MapMark.ThrowMark(t)));
-        if (solution.mean() != null) {
+        if (solution.mean() != null && !MinimapBridge.showsPoint()) {
             marks.add(new MapMark.MeanMark(solution.mean(), solution.err()));
         }
 

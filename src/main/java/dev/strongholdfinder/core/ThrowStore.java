@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
 
 public final class ThrowStore {
     private static final Logger LOGGER = LoggerFactory.getLogger("stronghold_finder");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(Throw.class, new ThrowJsonAdapter())
+            .create();
     private static final int UNDO_LIMIT = 30;
 
     private final Path dir;
@@ -120,23 +123,28 @@ public final class ThrowStore {
         }
     }
 
-    private boolean isDuplicate(double x, double z, double yaw) {
+    private boolean isDuplicate(Ray ray) {
+        Point origin = ray.origin();
+        double yaw = ray.yaw();
         return state.throwsList.stream().anyMatch(t ->
-                Math.abs(t.x() - x) < 0.01 && Math.abs(t.z() - z) < 0.01 && Math.abs(t.yaw() - yaw) < 0.01);
+                Math.abs(t.x() - origin.x()) < 0.01 && Math.abs(t.z() - origin.z()) < 0.01 && Math.abs(t.yaw() - yaw) < 0.01);
     }
 
-    private void append(ThrowInput input, double yaw) {
+    private void append(Ray ray) {
         lastAddedId = state.next++;
-        state.throwsList.add(new Throw(lastAddedId, input.x(), input.z(), yaw, true));
+        state.throwsList.add(new Throw(lastAddedId, ray, true));
     }
 
     public AddResult add(ThrowInput input) {
-        double yaw = Geometry.normYaw(input.yaw());
-        if (isDuplicate(input.x(), input.z(), yaw)) {
+        return add(input.toRay());
+    }
+
+    public AddResult add(Ray ray) {
+        if (isDuplicate(ray)) {
             return AddResult.DUPLICATE;
         }
         remember();
-        append(input, yaw);
+        append(ray);
         save();
         return AddResult.ADDED;
     }
@@ -145,9 +153,9 @@ public final class ThrowStore {
         State before = state.copy();
         int added = 0;
         for (ThrowInput input : inputs) {
-            double yaw = Geometry.normYaw(input.yaw());
-            if (!isDuplicate(input.x(), input.z(), yaw)) {
-                append(input, yaw);
+            Ray ray = input.toRay();
+            if (!isDuplicate(ray)) {
+                append(ray);
                 added++;
             }
         }
@@ -166,7 +174,7 @@ public final class ThrowStore {
     }
 
     public void setOn(int id, boolean on) {
-        state.throwsList.replaceAll(t -> t.id() == id ? new Throw(t.id(), t.x(), t.z(), t.yaw(), on) : t);
+        state.throwsList.replaceAll(t -> t.id() == id ? t.withOn(on) : t);
         save();
     }
 

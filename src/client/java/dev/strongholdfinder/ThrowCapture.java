@@ -1,23 +1,25 @@
 package dev.strongholdfinder;
 
 import dev.strongholdfinder.core.AddResult;
-import dev.strongholdfinder.core.Aim;
-import dev.strongholdfinder.core.EyeAim;
-import dev.strongholdfinder.core.EyeCandidate;
+import dev.strongholdfinder.core.AngleRay;
+import dev.strongholdfinder.core.EyeRayCapture;
+import dev.strongholdfinder.core.EyeSample;
+import dev.strongholdfinder.core.Point;
+import dev.strongholdfinder.core.Ray;
 import dev.strongholdfinder.core.Solution;
-import dev.strongholdfinder.core.ThrowInput;
 import dev.strongholdfinder.core.ThrowStore;
-import java.util.List;
+import java.util.Comparator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.projectile.EyeOfEnder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 final class ThrowCapture {
     private static final double EYE_SEARCH_RADIUS = 64;
+
+    private static EyeRayCapture eyeCapture;
+    private static int eyeId;
 
     private ThrowCapture() {
     }
@@ -25,47 +27,47 @@ final class ThrowCapture {
     static void fromLook(Minecraft client, ThrowStore store) {
         LocalPlayer player = client.player;
         if (isInOverworld(client)) {
-            record(player, store, player.getYRot());
+            record(player, store, new AngleRay(new Point(player.getX(), player.getZ()), player.getYRot()));
         }
     }
 
+    /** Starts watching the newest eye. The ray comes on a later tick, from {@link #tick}. */
     static void fromEye(Minecraft client, ThrowStore store) {
-        LocalPlayer player = client.player;
-        if (!isInOverworld(client)) {
+        if (eyeCapture != null || !isInOverworld(client)) {
             return;
         }
-        MinecraftServer server = client.getSingleplayerServer();
-        if (!EyeAim.isAllowed(server != null, server != null && server.isPublished())) {
-            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.aim_singleplayer_only"));
-            return;
-        }
-        List<EyeCandidate> eyes = client.level
-                .getEntitiesOfClass(EyeOfEnder.class, player.getBoundingBox().inflate(EYE_SEARCH_RADIUS))
+        EyeOfEnder eye = client.level
+                .getEntitiesOfClass(EyeOfEnder.class, client.player.getBoundingBox().inflate(EYE_SEARCH_RADIUS))
                 .stream()
-                .map(eye -> {
-                    Vec3 center = eye.getBoundingBox().getCenter();
-                    return new EyeCandidate(center.x, center.y, center.z, eye.tickCount);
-                })
-                .toList();
-        EyeCandidate eye = EyeAim.pick(eyes);
-        if (eye == null) {
-            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.no_eye"));
+                .min(Comparator.comparingInt(found -> found.tickCount))
+                .orElse(null);
+        eyeCapture = new EyeRayCapture();
+        eyeId = eye == null ? -1 : eye.getId();
+        tick(client, store);
+    }
+
+    static void tick(Minecraft client, ThrowStore store) {
+        if (eyeCapture == null) {
             return;
         }
-        Vec3 from = player.getEyePosition();
-        Aim aim = EyeAim.compute(from.x, from.y, from.z, eye.x(), eye.y(), eye.z());
-        if (aim == null) {
-            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.eye_too_close"));
+        EyeSample sample = client.level.getEntity(eyeId) instanceof EyeOfEnder eye && !eye.isRemoved()
+                ? new EyeSample(eye.getX(), eye.getZ(), eye.tickCount)
+                : null;
+        EyeRayCapture.Status status = eyeCapture.accept(sample);
+        if (status == EyeRayCapture.Status.WAITING) {
             return;
         }
-        float yaw = (float) aim.yaw();
-        float pitch = (float) aim.pitch();
-        player.setYRot(yaw);
-        player.setXRot(pitch);
-        player.yRotO = yaw;
-        player.xRotO = pitch;
-        player.setYHeadRot(yaw);
-        record(player, store, aim.yaw());
+        Ray ray = eyeCapture.ray();
+        eyeCapture = null;
+        if (status == EyeRayCapture.Status.DONE) {
+            record(client.player, store, ray);
+        } else {
+            client.player.sendOverlayMessage(Component.translatable("message.stronghold_finder.no_eye"));
+        }
+    }
+
+    static void cancel() {
+        eyeCapture = null;
     }
 
     private static boolean isInOverworld(Minecraft client) {
@@ -76,8 +78,8 @@ final class ThrowCapture {
         return false;
     }
 
-    private static void record(LocalPlayer player, ThrowStore store, double yaw) {
-        if (store.add(new ThrowInput(player.getX(), player.getZ(), yaw)) == AddResult.DUPLICATE) {
+    private static void record(LocalPlayer player, ThrowStore store, Ray ray) {
+        if (store.add(ray) == AddResult.DUPLICATE) {
             player.sendOverlayMessage(Component.translatable("message.stronghold_finder.duplicate"));
             return;
         }

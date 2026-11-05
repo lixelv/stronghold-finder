@@ -63,6 +63,14 @@ dependencies {
     clientCompileOnly files(extractXaeroLib.map { fileTree(it.destinationDir) }) { builtBy extractXaeroLib }
     localRuntime(xaeroMapNotation) { transitive = false }
 
+    // Optional for players. `-PnoMinimap` runs the game without it, to check the mod still works then.
+    def xaeroMinimapNotation = "maven.modrinth:xaeros-minimap:${project.xaero_minimap_version}"
+    clientCompileOnly(xaeroMinimapNotation) { transitive = false }
+    gametestCompileOnly(xaeroMinimapNotation) { transitive = false }
+    if (!project.hasProperty('noMinimap')) {
+        localRuntime(xaeroMinimapNotation) { transitive = false }
+    }
+
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

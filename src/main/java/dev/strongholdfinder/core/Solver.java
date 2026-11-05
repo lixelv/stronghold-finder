@@ -22,11 +22,13 @@ public final class Solver {
     }
 
     private static Intersection intersect(Throw a, Throw b) {
-        Point d1 = Geometry.dir(a.yaw());
-        Point d2 = Geometry.dir(b.yaw());
+        RayEquation first = a.ray().equation();
+        RayEquation second = b.ray().equation();
+        Point d1 = first.direction();
+        Point d2 = second.direction();
         double s = d1.x() * d2.z() - d1.z() * d2.x();
-        double wx = b.x() - a.x();
-        double wz = b.z() - a.z();
+        double wx = second.origin().x() - first.origin().x();
+        double wz = second.origin().z() - first.origin().z();
         double angle = Math.toDegrees(Math.asin(Math.min(1, Math.abs(s))));
         if (Math.hypot(wx, wz) < 4) {
             return Intersection.none(PairStatus.SAME, angle);
@@ -40,7 +42,8 @@ public final class Solver {
             return Intersection.none(PairStatus.BEHIND, angle);
         }
         PairStatus status = angle < MIN_ANGLE ? PairStatus.WEAK : PairStatus.OK;
-        return new Intersection(status, angle, a.x() + t1 * d1.x(), a.z() + t1 * d1.z());
+        Point crossing = first.at(t1);
+        return new Intersection(status, angle, crossing.x(), crossing.z());
     }
 
     private record Fit(double x, double z, double theory) {
@@ -53,7 +56,7 @@ public final class Solver {
         double p = 0;
         double q = 0;
         for (Throw t : rays) {
-            Point d = Geometry.dir(t.yaw());
+            Point d = t.ray().direction();
             double dist = Math.max(16, Math.hypot(at.x() - t.x(), at.z() - t.z()));
             double w = 1 / (dist * dist);
             double ma = 1 - d.x() * d.x();

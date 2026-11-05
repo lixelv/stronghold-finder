@@ -3,6 +3,7 @@ package dev.strongholdfinder;
 import dev.strongholdfinder.core.KeyEdge;
 import dev.strongholdfinder.core.ThrowStore;
 import dev.strongholdfinder.core.WorldKey;
+import dev.strongholdfinder.minimap.MinimapBridge;
 import dev.strongholdfinder.screen.StrongholdScreen;
 import dev.strongholdfinder.xaero.XaeroBridge;
 import net.fabricmc.api.ClientModInitializer;
@@ -31,8 +32,10 @@ public final class StrongholdFinderClient implements ClientModInitializer {
     private static void tick(Minecraft client) {
         XaeroBridge.install();
         if (client.player == null || client.level == null) {
+            ThrowCapture.cancel();
             return;
         }
+        ThrowCapture.tick(client, store);
         boolean clicked = false;
         while (ModKeys.CAPTURE.consumeClick()) {
             clicked = true;
@@ -47,6 +50,7 @@ public final class StrongholdFinderClient implements ClientModInitializer {
         while (ModKeys.OPEN_SCREEN.consumeClick()) {
             client.gui.setScreen(new StrongholdScreen());
         }
+        MinimapBridge.tick(client, store);
     }
 
     private static String worldKey(Minecraft client) {

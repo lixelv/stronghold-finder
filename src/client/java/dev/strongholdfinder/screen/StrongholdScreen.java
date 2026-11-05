@@ -11,6 +11,7 @@ import dev.strongholdfinder.core.ParsedPaste;
 import dev.strongholdfinder.core.Solution;
 import dev.strongholdfinder.core.ThrowInput;
 import dev.strongholdfinder.core.ThrowStore;
+import dev.strongholdfinder.minimap.MinimapBridge;
 import dev.strongholdfinder.xaero.XaeroBridge;
 import java.util.Arrays;
 import java.util.List;
@@ -286,7 +287,9 @@ public final class StrongholdScreen extends Screen {
         }
 
         int at = statusY;
-        Component warning = XaeroBridge.isActive() ? null : Component.translatable("screen.stronghold_finder.map_failed");
+        Component warning = !XaeroBridge.isActive() ? Component.translatable("screen.stronghold_finder.map_failed")
+                : MinimapBridge.hasFailed() ? Component.translatable("screen.stronghold_finder.minimap_failed")
+                : null;
         Component status = statusText();
         for (Component line : warning == null ? List.of(status) : List.of(warning, status)) {
             int color = line == warning || noticeIsError ? RED : GRAY;

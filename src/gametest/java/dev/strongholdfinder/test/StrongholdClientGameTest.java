@@ -9,6 +9,7 @@ import dev.strongholdfinder.core.Point;
 import dev.strongholdfinder.core.Throw;
 import dev.strongholdfinder.core.ThrowInput;
 import dev.strongholdfinder.core.ThrowStore;
+import dev.strongholdfinder.core.TwoPointRay;
 import java.util.Arrays;
 import java.util.List;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -18,6 +19,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerCon
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerConnection;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.StructureTags;
@@ -29,44 +31,54 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             testKeys(context, world);
             testMap(context, world);
             testScreen(context);
+            if (FabricLoader.getInstance().isModLoaded("xaerominimap")) {
+                MinimapChecks.run(context, world);
+            } else {
+                System.out.println("SFTEST running without the minimap");
+            }
         }
         testWorldSeparation(context);
         testRealThrows(context);
         testDedicatedServer(context);
     }
 
-    /** On a real server Shift+G must not move the camera or add a ray, while G keeps working. */
+    /** On a real server Shift+G reads a real eye without moving the camera, and G keeps working. */
     private static void testDedicatedServer(ClientGameTestContext context) {
         ThrowStore store = StrongholdFinderClient.store();
         TestInput input = context.getInput();
-        try (TestDedicatedServerContext server = context.worldBuilder().createServer();
+        try (TestDedicatedServerContext server = context.worldBuilder().setUseConsistentSettings(false).createServer();
                 TestDedicatedServerConnection connection = server.connect()) {
             context.waitTicks(40);
             check(store.throwsList().isEmpty(), "a new server should start with no throws");
             server.runCommand("gamemode creative @a");
-            server.runCommand("tp @a 0 ~ 0 0 0");
-            context.waitTicks(20);
-            input.lookAt(0, 0);
-            context.waitTick();
+            server.runCommand("give @a minecraft:ender_eye 16");
+            BlockPos first = server.computeOnServer(s -> s.overworld()
+                    .findNearestMapStructure(StructureTags.EYE_OF_ENDER_LOCATED, BlockPos.ZERO, 100, false));
+            check(first != null, "the server world should have a stronghold");
+            server.runCommand("tp @a " + first.getX() / 2 + " 220 " + first.getZ() / 2);
+            context.waitTicks(120);
+            BlockPos here = context.computeOnClient(client -> client.player.blockPosition());
+            BlockPos real = server.computeOnServer(s -> s.overworld()
+                    .findNearestMapStructure(StructureTags.EYE_OF_ENDER_LOCATED, here, 100, false));
 
-            server.runCommand("execute as @a at @s run summon minecraft:eye_of_ender ~10 ~3 ~");
-            context.waitTicks(4);
             float yawBefore = context.computeOnClient(client -> client.player.getYRot());
             float pitchBefore = context.computeOnClient(client -> client.player.getXRot());
-            input.holdShift();
-            input.pressKey(ModKeys.CAPTURE);
-            input.releaseShift();
-            context.waitTick();
-            check(store.throwsList().isEmpty(), "Shift+G on a server should not add a ray");
+            throwEyeAndCapture(context, input, 10);
+            check(store.throwsList().size() == 1, "Shift+G on a server should add a ray");
+            Throw thrown = last(store);
+            check(thrown.ray() instanceof TwoPointRay, "Shift+G should give a two-point ray, got " + thrown.ray());
+            double yawToStronghold = Geometry.yawTo(new Point(thrown.x(), thrown.z()), new Point(real.getX(), real.getZ()));
+            double off = Math.abs(Geometry.normYaw(thrown.yaw() - yawToStronghold));
+            System.out.println("SFTEST server: Shift+G off by " + off + " degrees");
+            check(off < 0.1, "the ray should point at the stronghold, off by " + off);
             float yawAfter = context.computeOnClient(client -> client.player.getYRot());
             float pitchAfter = context.computeOnClient(client -> client.player.getXRot());
-            check(yawAfter == yawBefore && pitchAfter == pitchBefore, "Shift+G on a server should not move the camera");
-            context.takeScreenshot("server_shift_g_refused");
+            check(yawAfter == yawBefore && pitchAfter == pitchBefore, "Shift+G should not move the camera");
+            context.takeScreenshot("server_shift_g");
 
             input.pressKey(ModKeys.CAPTURE);
             context.waitTick();
-            check(store.throwsList().size() == 1, "G should still work on a server");
-            System.out.println("SFTEST server: Shift+G refused, G works");
+            check(store.throwsList().size() == 2, "G should still work on a server");
             server.runCommand("kill @e[type=minecraft:eye_of_ender]");
         }
     }
@@ -85,16 +97,18 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             world.getServer().runCommand("tp @a " + real.getX() / 2 + " 200 " + real.getZ() / 2);
             context.waitTicks(200);
 
-            throwEyeAndCapture(context, input);
+            // Pressed while the eye still stands still on the client, so the mod has to wait for it to move.
+            throwEyeAndCapture(context, input, 3);
             check(store.throwsList().size() == 1, "the first real eye should give a ray");
             Throw first = last(store);
+            check(first.ray() instanceof TwoPointRay, "Shift+G should give a two-point ray, got " + first.ray());
             Point side = Geometry.dir(first.yaw() + 90);
             int nextX = (int) Math.round(first.x() + side.x() * 400);
             int nextZ = (int) Math.round(first.z() + side.z() * 400);
             world.getServer().runCommand("tp @a " + nextX + " 200 " + nextZ);
             context.waitTicks(200);
 
-            throwEyeAndCapture(context, input);
+            throwEyeAndCapture(context, input, 15);
             check(store.throwsList().size() == 2, "the second real eye should give a ray");
             for (Throw t : store.throwsList()) {
                 System.out.println("SFTEST throw " + t + " yawToStronghold=" + Geometry.yawTo(new Point(t.x(), t.z()), new Point(real.getX(), real.getZ())));
@@ -115,16 +129,26 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             context.setScreen(() -> null);
             context.waitTick();
             check(miss <= Math.max(err * 3, 64), "the result should land near the real stronghold, missed by " + miss);
+
+            // Too late: the eye may already fly back, so it counts as not seen.
+            input.pressKey(options -> options.keyUse);
+            context.waitTicks(40);
+            input.holdShift();
+            input.pressKey(ModKeys.CAPTURE);
+            input.releaseShift();
+            context.waitTicks(3);
+            check(store.throwsList().size() == 2, "a late Shift+G should not add a ray");
+            context.takeScreenshot("late_eye_not_seen");
         }
     }
 
-    private static void throwEyeAndCapture(ClientGameTestContext context, TestInput input) {
+    private static void throwEyeAndCapture(ClientGameTestContext context, TestInput input, int delay) {
         input.pressKey(options -> options.keyUse);
-        context.waitTicks(15);
+        context.waitTicks(delay);
         input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
         input.releaseShift();
-        context.waitTick();
+        context.waitTicks(10);
     }
 
     private static void testScreen(ClientGameTestContext context) {
@@ -267,24 +291,25 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         check(store.throwsList().size() == 1, "Shift+G without an eye should not add a ray");
         context.takeScreenshot("no_eye_message");
 
+        // A summoned eye has no target and never moves, so there is no direction to read.
         world.getServer().runCommand("execute as @a at @s run summon minecraft:eye_of_ender ~10 ~3 ~");
         context.waitTicks(4);
+        float yawBefore = context.computeOnClient(client -> client.player.getYRot());
         input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
         input.releaseShift();
-        context.waitTick();
-        check(store.throwsList().size() == 2, "Shift+G with an eye should add a ray");
-        check(Math.abs(last(store).yaw() + 90) < 20, "eye to the east should give yaw near -90, got " + last(store).yaw());
-        float cameraYaw = context.computeOnClient(client -> client.player.getYRot());
-        check(Math.abs(cameraYaw - last(store).yaw()) < 0.01, "camera should face the recorded yaw, got " + cameraYaw);
-        context.takeScreenshot("aimed_at_eye");
+        context.waitTicks(40);
+        check(store.throwsList().size() == 1, "Shift+G on an eye that does not move should not add a ray");
+        float yawAfter = context.computeOnClient(client -> client.player.getYRot());
+        check(yawAfter == yawBefore, "Shift+G should not move the camera");
+        context.takeScreenshot("eye_standing_still");
 
         world.getServer().runCommand("kill @e[type=minecraft:eye_of_ender]");
         world.getServer().runCommand("execute in minecraft:the_nether run tp @a 0 128 0");
         context.waitTicks(60);
         input.pressKey(ModKeys.CAPTURE);
         context.waitTick();
-        check(store.throwsList().size() == 2, "G in the Nether should not add a ray");
+        check(store.throwsList().size() == 1, "G in the Nether should not add a ray");
         world.getServer().runCommand("execute in minecraft:overworld run tp @a 0 100 0");
         context.waitTicks(60);
     }
@@ -352,7 +377,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         context.waitTicks(5);
     }
 
-    private static KeyMapping mapKey(ClientGameTestContext context) {
+    static KeyMapping mapKey(ClientGameTestContext context) {
         return context.computeOnClient(client -> Arrays.stream(client.options.keyMappings)
                 .filter(key -> key.getName().equals("gui.xaero_open_map"))
                 .findFirst()
