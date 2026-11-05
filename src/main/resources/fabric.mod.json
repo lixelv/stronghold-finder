@@ -4,6 +4,7 @@
   "version": "${version}",
   "name": "Stronghold Finder",
   "description": "Finds strongholds from eye of ender throws and shows the rays on Xaero's World Map.",
+  "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": ["dev.strongholdfinder.StrongholdFinderClient"]
