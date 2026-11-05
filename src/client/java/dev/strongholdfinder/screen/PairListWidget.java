@@ -85,10 +85,10 @@ final class PairListWidget extends ContainerObjectSelectionList<PairListWidget.R
             int color = pair.used() ? 0xFFFFFFFF : 0xFFAAAAAA;
             int right = left + getContentWidth();
             graphics.text(font, pair.a().id() + "×" + pair.b().id(), left + 2, top, color);
-            int angleX = left + (pair.usable() ? 92 : 28);
+            int angleX = left + (pair.usable() ? 102 : 28);
             if (pair.usable()) {
-                graphics.text(font, String.valueOf(Math.round(pair.x())), left + 28, top, color);
-                graphics.text(font, String.valueOf(Math.round(pair.z())), left + 60, top, color);
+                graphics.text(font, String.valueOf(Math.round(pair.x())), left + 26, top, color);
+                graphics.text(font, String.valueOf(Math.round(pair.z())), left + 64, top, color);
             }
             graphics.text(font, String.format(java.util.Locale.ROOT, "%.0f°", pair.angle()), angleX, top, color);
             int statusX = angleX + 24;
