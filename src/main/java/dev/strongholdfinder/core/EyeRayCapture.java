@@ -1,30 +1,40 @@
 package dev.strongholdfinder.core;
 
-/** Builds a ray from where an eye is on two neighboring ticks. */
+/**
+ * Builds a ray from two points of one eye's flight: where it was when first seen and where it is as late as possible.
+ * A longer stretch gives a better angle. On real eyes neighboring ticks were up to 0.05 degrees off the stronghold,
+ * while the whole flight was within 0.001 degrees.
+ */
 public final class EyeRayCapture {
-    /**
-     * Measured on real eyes: up to here the step between ticks is within 0.05 degrees of the stronghold.
-     * From tick 36 the eye overshoots its target and swings back, so a later step can point the wrong way.
-     */
+    /** From tick 36 the eye overshoots its target and swings back, so the flight is only trusted up to here. */
     public static final int LAST_TICK = 31;
-    /** For its first ticks the eye stands still on the client. */
-    private static final double MIN_STEP = 0.05;
+    /** For its first ticks the eye stands still on the client, and a shorter stretch has no usable direction. */
+    private static final double MIN_STRETCH = 0.05;
 
     public enum Status { WAITING, DONE, LOST }
 
     private EyeSample first;
+    private EyeSample last;
     private Ray ray;
 
     /** {@code sample} is null when the eye is gone. */
     public Status accept(EyeSample sample) {
         if (sample == null || sample.age() > LAST_TICK) {
-            return Status.LOST;
+            return finish();
         }
-        if (first == null || Math.hypot(sample.x() - first.x(), sample.z() - first.z()) < MIN_STEP) {
+        if (first == null) {
             first = sample;
             return Status.WAITING;
         }
-        ray = new TwoPointRay(new Point(first.x(), first.z()), new Point(sample.x(), sample.z()));
+        last = sample;
+        return sample.age() == LAST_TICK ? finish() : Status.WAITING;
+    }
+
+    private Status finish() {
+        if (first == null || last == null || Math.hypot(last.x() - first.x(), last.z() - first.z()) < MIN_STRETCH) {
+            return Status.LOST;
+        }
+        ray = new TwoPointRay(new Point(first.x(), first.z()), new Point(last.x(), last.z()));
         return Status.DONE;
     }
 

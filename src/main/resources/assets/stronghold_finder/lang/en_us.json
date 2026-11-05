@@ -5,6 +5,7 @@
   "message.stronghold_finder.added": "Ray %s added",
   "message.stronghold_finder.added_result": "Ray %s added. Stronghold: X %s, Z %s ±%s",
   "message.stronghold_finder.duplicate": "This ray already exists",
+  "message.stronghold_finder.reading_eye": "Reading the eye's flight…",
   "message.stronghold_finder.no_eye": "Didn't see an Eye of Ender",
   "message.stronghold_finder.overworld_only": "Rays only work in the Overworld",
   "map.stronghold_finder.throw": "Throw %s: X %s, Z %s, yaw %s°, towards %s",

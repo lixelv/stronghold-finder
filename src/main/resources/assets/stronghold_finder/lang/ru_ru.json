@@ -5,6 +5,7 @@
   "message.stronghold_finder.added": "Луч %s добавлен",
   "message.stronghold_finder.added_result": "Луч %s добавлен. Крепость: X %s, Z %s ±%s",
   "message.stronghold_finder.duplicate": "Такой луч уже есть",
+  "message.stronghold_finder.reading_eye": "Читаю полёт ока…",
   "message.stronghold_finder.no_eye": "Не увидел око Эндера",
   "message.stronghold_finder.overworld_only": "Лучи работают только в обычном мире",
   "map.stronghold_finder.throw": "Бросок %s: X %s, Z %s, угол %s°, на %s",

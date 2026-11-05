@@ -2,6 +2,7 @@ package dev.strongholdfinder.xaero;
 
 import dev.strongholdfinder.core.Compass;
 import dev.strongholdfinder.core.Geometry;
+import dev.strongholdfinder.core.NumberText;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -133,7 +134,10 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
                 Compass side = Geometry.compass(t.source().yaw());
                 yield new Tooltip(Component.translatable(
                         "map.stronghold_finder.throw",
-                        t.source().id(), x, z, String.format(java.util.Locale.ROOT, "%.1f", t.source().yaw()),
+                        t.source().id(),
+                        NumberText.coordinate(t.source().x()),
+                        NumberText.coordinate(t.source().z()),
+                        NumberText.angle(t.source().yaw()),
                         Component.translatable("stronghold_finder." + side.key())));
             }
             case MapMark.PairMark p -> new Tooltip(Component.translatable(

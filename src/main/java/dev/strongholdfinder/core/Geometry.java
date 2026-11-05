@@ -20,7 +20,7 @@ public final class Geometry {
         if (yaw > -180 && yaw <= 180) {
             return yaw;
         }
-        double wrapped = Math.round((((yaw + 180) % 360 + 360) % 360 - 180) * 1e6) / 1e6;
+        double wrapped = Math.round((((yaw + 180) % 360 + 360) % 360 - 180) * 1e9) / 1e9;
         return wrapped == -180 ? 180 : wrapped;
     }
 

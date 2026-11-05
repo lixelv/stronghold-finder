@@ -6,7 +6,7 @@ Fabric client mod for Minecraft Java 26.3. It finds strongholds from Eye of Ende
 
 **Use:**
 
-1. Throw an eye and press `Shift+G` within about 1.5 seconds: the mod reads the flying eye and doesn't touch the camera. Or aim at the eye yourself and press `G`.
+1. Throw an eye and press `Shift+G` within about 1.5 seconds: the mod follows the flying eye and adds the ray about 1.5 seconds after the throw, without touching the camera. Or aim at the eye yourself and press `G`.
 2. Walk 200–300 blocks sideways from the ray and repeat.
 3. Press `M` for the map or `J` for coordinates, then walk to the average point.
 
@@ -20,7 +20,7 @@ The gold waypoint moves by itself when the throws change. If you delete it, it c
 
 **Как пользоваться:**
 
-1. Бросьте око и в течение примерно 1,5 секунды нажмите `Shift+G`: мод считает направление по летящему оку, камера не двигается. Или наведите прицел на око сами и нажмите `G`.
+1. Бросьте око и в течение примерно 1,5 секунды нажмите `Shift+G`: мод проследит за полётом ока и добавит луч примерно через 1,5 секунды после броска, камера не двигается. Или наведите прицел на око сами и нажмите `G`.
 2. Отойдите на 200–300 блоков вбок от луча и повторите.
 3. Нажмите `M` для карты или `J` для координат и идите к средней точке.
 

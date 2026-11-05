@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.strongholdfinder.ModKeys;
 import dev.strongholdfinder.screen.StrongholdScreen;
 import dev.strongholdfinder.StrongholdFinderClient;
+import dev.strongholdfinder.core.EyeRayCapture;
 import dev.strongholdfinder.core.Geometry;
 import dev.strongholdfinder.core.Point;
 import dev.strongholdfinder.core.Throw;
@@ -70,7 +71,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             double yawToStronghold = Geometry.yawTo(new Point(thrown.x(), thrown.z()), new Point(real.getX(), real.getZ()));
             double off = Math.abs(Geometry.normYaw(thrown.yaw() - yawToStronghold));
             System.out.println("SFTEST server: Shift+G off by " + off + " degrees");
-            check(off < 0.1, "the ray should point at the stronghold, off by " + off);
+            check(off < 0.01, "the ray should point at the stronghold, off by " + off);
             float yawAfter = context.computeOnClient(client -> client.player.getYRot());
             float pitchAfter = context.computeOnClient(client -> client.player.getXRot());
             check(yawAfter == yawBefore && pitchAfter == pitchBefore, "Shift+G should not move the camera");
@@ -148,7 +149,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
         input.releaseShift();
-        context.waitTicks(10);
+        context.waitTicks(EyeRayCapture.LAST_TICK + 2);
     }
 
     private static void testScreen(ClientGameTestContext context) {

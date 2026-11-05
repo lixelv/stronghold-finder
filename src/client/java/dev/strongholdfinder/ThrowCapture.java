@@ -44,6 +44,9 @@ final class ThrowCapture {
         eyeCapture = new EyeRayCapture();
         eyeId = eye == null ? -1 : eye.getId();
         tick(client, store);
+        if (eyeCapture != null) {
+            client.player.sendOverlayMessage(Component.translatable("message.stronghold_finder.reading_eye"));
+        }
     }
 
     static void tick(Minecraft client, ThrowStore store) {
