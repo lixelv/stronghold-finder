@@ -21,7 +21,8 @@ public final class EntryParser {
         if (t.isEmpty() || !PLAIN_NUMBER.matcher(t).matches()) {
             return null;
         }
-        return Double.valueOf(t);
+        double value = Double.parseDouble(t);
+        return Double.isFinite(value) ? value : null;
     }
 
     private static ParsedPaste parseLine(String line) {
@@ -42,8 +43,13 @@ public final class EntryParser {
         if (!triple.matches()) {
             return new ParsedPaste.Invalid();
         }
-        return new ParsedPaste.Throws(List.of(
-                new ThrowInput(num(triple.group(1)), num(triple.group(2)), Geometry.normYaw(num(triple.group(3))))));
+        Double x = num(triple.group(1));
+        Double z = num(triple.group(2));
+        Double yaw = num(triple.group(3));
+        if (x == null || z == null || yaw == null) {
+            return new ParsedPaste.Invalid();
+        }
+        return new ParsedPaste.Throws(List.of(new ThrowInput(x, z, Geometry.normYaw(yaw))));
     }
 
     public static ParsedPaste parsePaste(String text) {

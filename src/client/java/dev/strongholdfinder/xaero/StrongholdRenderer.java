@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import dev.strongholdfinder.RayColors;
 import dev.strongholdfinder.StrongholdFinderClient;
 import dev.strongholdfinder.core.LabelPlacer;
+import dev.strongholdfinder.core.MapShapes;
 import dev.strongholdfinder.core.Point;
 import dev.strongholdfinder.core.Geometry;
 import dev.strongholdfinder.core.Throw;
@@ -30,6 +31,8 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
     private static final int MEAN_COLOR = 0xFFFFFF55;
     private static final int CIRCLE_FILL = 0x30FFFF55;
     private static final int CIRCLE_EDGE = 0xC0FFFF55;
+    private static final int CIRCLE_BANDS = 32;
+    private static final int CIRCLE_SEGMENTS = 48;
     private static final int DASH = 6;
     private static final int DASH_GAP = 4;
 
@@ -73,7 +76,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
             pose.translate((float) partialX, (float) partialY, 0f);
             switch (mark) {
                 case MapMark.RayMark ray -> drawRay(ray.source(), frame, pose, graphics);
-                case MapMark.ErrorCircleMark circle -> drawCircle(circle.radius() * frame.scale, frame, graphics);
+                case MapMark.ErrorCircleMark circle -> drawCircle(circle.radius() * frame.scale, frame, pose, graphics);
                 case MapMark.PairMark pair -> {
                     drawLabel(frame.pairLabels.get(pair.pair().key()), MapFrame.pairText(pair.pair()), mark, frame, pose, graphics, font);
                     pose.scale(frame.ui, frame.ui, 1f);
@@ -98,29 +101,36 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         pose.rotateDegrees(Axis.ZP, (float) Math.toDegrees(Math.atan2(direction.z(), direction.x())));
         pose.scale(frame.ui, frame.ui, 1f);
         double fromCenter = Math.hypot(frame.px(source.x()), frame.py(source.z()));
-        int start = (int) (Math.max(0, fromCenter - frame.diagonal) / frame.ui);
-        int end = (int) ((fromCenter + frame.diagonal) / frame.ui);
+        MapShapes.RaySpan span = MapShapes.raySpan(fromCenter, frame.diagonal, frame.ui);
+        if (span == null) {
+            return;
+        }
         int color = RayColors.of(source);
         if (RayColors.hasOwnColor(source)) {
-            graphics.fill(start, 0, end, 1, color);
+            graphics.fill(span.start(), 0, span.end(), 1, color);
             return;
         }
         int period = DASH + DASH_GAP;
-        for (int x = start - start % period; x < end; x += period) {
+        for (int x = span.start() - span.start() % period; x < span.end(); x += period) {
             graphics.fill(x, 0, x + DASH, 1, color);
         }
     }
 
-    private static void drawCircle(double radius, MapFrame frame, MapElementGraphics graphics) {
+    private static void drawCircle(double radius, MapFrame frame, PoseStack pose, MapElementGraphics graphics) {
         if (radius < 2 || radius > frame.diagonal * 2) {
             return;
         }
-        int r = (int) Math.round(radius);
-        for (int y = -r; y < r; y++) {
-            int half = (int) Math.round(Math.sqrt(radius * radius - (y + 0.5) * (y + 0.5)));
-            graphics.fill(-half, y, half, y + 1, CIRCLE_FILL);
-            graphics.fill(-half - 1, y, -half, y + 1, CIRCLE_EDGE);
-            graphics.fill(half, y, half + 1, y + 1, CIRCLE_EDGE);
+        for (MapShapes.Band band : MapShapes.circleBands(radius, CIRCLE_BANDS)) {
+            graphics.fill(-band.halfWidth(), band.top(), band.halfWidth(), band.bottom(), CIRCLE_FILL);
+        }
+        int thickness = Math.max(1, Math.round(frame.ui / 2));
+        int half = (int) Math.ceil(Math.PI * radius / CIRCLE_SEGMENTS) + 1;
+        for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+            pose.pushPose();
+            pose.rotateDegrees(Axis.ZP, 360f * i / CIRCLE_SEGMENTS);
+            int r = (int) Math.round(radius);
+            graphics.fill(r - thickness, -half, r, half, CIRCLE_EDGE);
+            pose.popPose();
         }
     }
 

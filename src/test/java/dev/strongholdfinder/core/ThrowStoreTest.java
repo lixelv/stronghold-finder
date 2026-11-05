@@ -129,6 +129,45 @@ class ThrowStoreTest {
         assertTrue(Files.exists(dir.resolve("a.json.bak")));
     }
 
+    private void assertRejected(String json) throws IOException {
+        Files.writeString(dir.resolve("a.json"), json);
+        ThrowStore store = store("a");
+        assertTrue(store.throwsList().isEmpty(), json);
+        assertTrue(Files.exists(dir.resolve("a.json.bak")), json);
+        store.add(new ThrowInput(1, 2, 3));
+        assertEquals(1, store.lastAddedId(), json);
+    }
+
+    @Test
+    void fileWithNullEntryBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[null],\"over\":{},\"next\":2}");
+    }
+
+    @Test
+    void fileWithMissingIdBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[{\"x\":1,\"z\":2,\"yaw\":3,\"on\":true}],\"over\":{},\"next\":2}");
+    }
+
+    @Test
+    void fileWithNullOverrideBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[],\"over\":{\"1-2\":null},\"next\":1}");
+    }
+
+    @Test
+    void fileWithNonFiniteValueBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[{\"id\":1,\"x\":NaN,\"z\":2,\"yaw\":3,\"on\":true}],\"over\":{},\"next\":2}");
+    }
+
+    @Test
+    void fileWithRepeatedIdsBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[{\"id\":1,\"x\":1,\"z\":2,\"yaw\":3,\"on\":true},{\"id\":1,\"x\":4,\"z\":5,\"yaw\":6,\"on\":true}],\"over\":{},\"next\":2}");
+    }
+
+    @Test
+    void fileWithNextBelowExistingIdsBecomesBak() throws IOException {
+        assertRejected("{\"throwsList\":[{\"id\":5,\"x\":1,\"z\":2,\"yaw\":3,\"on\":true}],\"over\":{},\"next\":2}");
+    }
+
     @Test
     void worldKeysAreSafeAndDistinct() {
         String[] raws = {"play.example.com:25565", "[::1]:25565", "мой мир", "play.example.com_25565"};

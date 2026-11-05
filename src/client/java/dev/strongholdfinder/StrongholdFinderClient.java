@@ -1,5 +1,6 @@
 package dev.strongholdfinder;
 
+import dev.strongholdfinder.core.KeyEdge;
 import dev.strongholdfinder.core.ThrowStore;
 import dev.strongholdfinder.core.WorldKey;
 import dev.strongholdfinder.screen.StrongholdScreen;
@@ -12,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.storage.LevelResource;
 
 public final class StrongholdFinderClient implements ClientModInitializer {
+    private static final KeyEdge captureEdge = new KeyEdge();
     private static ThrowStore store;
 
     public static ThrowStore store() {
@@ -31,7 +33,11 @@ public final class StrongholdFinderClient implements ClientModInitializer {
         if (client.player == null || client.level == null) {
             return;
         }
+        boolean clicked = false;
         while (ModKeys.CAPTURE.consumeClick()) {
+            clicked = true;
+        }
+        if (captureEdge.update(clicked, ModKeys.CAPTURE.isDown())) {
             if (client.hasShiftDown()) {
                 ThrowCapture.fromEye(client, store);
             } else {

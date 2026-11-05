@@ -105,6 +105,11 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
     }
 
     @Override
+    public float getBoxScale(ElementRenderLocation location, MapMark mark, MapFrame frame) {
+        return frame.ui;
+    }
+
+    @Override
     public boolean isOnScreen(MapMark mark, double cameraX, double cameraZ, int width, int height, double scale, double screenSizeBasedScale, double dimDiv, MapFrame frame, float partialTicks) {
         return true;
     }

@@ -11,8 +11,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,17 @@ public final class ThrowStore {
         }
 
         boolean isValid() {
-            return throwsList != null && over != null && next > 0;
+            if (throwsList == null || over == null || next < 1 || over.containsValue(null)) {
+                return false;
+            }
+            Set<Integer> ids = new HashSet<>();
+            for (Throw t : throwsList) {
+                boolean finite = t != null && Double.isFinite(t.x()) && Double.isFinite(t.z()) && Double.isFinite(t.yaw());
+                if (!finite || t.id() < 1 || t.id() >= next || !ids.add(t.id())) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

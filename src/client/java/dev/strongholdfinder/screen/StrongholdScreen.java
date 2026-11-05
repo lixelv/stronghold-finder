@@ -221,7 +221,7 @@ public final class StrongholdScreen extends Screen {
         return -1;
     }
 
-    /** Returns true when the text was handled; a single number is left to the field's normal paste. */
+    /** Returns true when the text was handled; a single value is left for the focused field. */
     private boolean paste(int index, String text) {
         String trimmed = text.trim();
         if (trimmed.isEmpty() || (!trimmed.matches("(?s).*\\s.*") && index >= 0)) {
@@ -257,7 +257,11 @@ public final class StrongholdScreen extends Screen {
         int index = focusedFieldIndex();
         // The physical V key also counts, because the virtual key code changes with the keyboard layout.
         boolean pasting = event.isPaste() || (event.key() == InputConstants.KEY_V && minecraft.hasControlDown());
-        if (pasting && paste(index, minecraft.keyboardHandler.getClipboard())) {
+        if (pasting) {
+            String text = minecraft.keyboardHandler.getClipboard();
+            if (!paste(index, text) && index >= 0) {
+                fields[index].insertText(text.trim());
+            }
             return true;
         }
         if (event.isConfirmation() && index >= 0) {

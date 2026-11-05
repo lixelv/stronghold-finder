@@ -40,6 +40,12 @@ class EntryTest {
     }
 
     @Test
+    void numRejectsNumbersTooLongToBeFinite() {
+        assertNull(EntryParser.num("1".repeat(400)));
+        assertInstanceOf(ParsedPaste.Invalid.class, EntryParser.parsePaste("1".repeat(400) + " 2 3"));
+    }
+
+    @Test
     void pasteReadsThreeNumbersSeparatedByAnyWhitespace() {
         List<ThrowInput> want = List.of(new ThrowInput(120, 310.5, -47.3));
         assertEquals(want, throwsOf("120 310.5 -47.3"));
