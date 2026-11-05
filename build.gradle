@@ -1,0 +1,89 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17.21'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        stronghold_finder {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'stronghold_finder_test'
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+configurations {
+    xaeroWorldMap
+}
+
+// World Map ships xaerolib nested inside its jar, and our renderer signatures need its classes.
+def extractXaeroLib = tasks.register('extractXaeroLib', Sync) {
+    from({ zipTree(configurations.xaeroWorldMap.singleFile) }) {
+        include 'META-INF/jars/xaerolib-*.jar'
+        eachFile { path = name }
+        includeEmptyDirs = false
+    }
+    into layout.buildDirectory.dir('xaero-lib')
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // All Rights Reserved: never bundled, only compiled against and run in development.
+    def xaeroMapNotation = "maven.modrinth:xaeros-world-map:${project.xaero_world_map_version}"
+    xaeroWorldMap(xaeroMapNotation) { transitive = false }
+    clientCompileOnly(xaeroMapNotation) { transitive = false }
+    clientCompileOnly files(extractXaeroLib.map { fileTree(it.destinationDir) }) { builtBy extractXaeroLib }
+    localRuntime(xaeroMapNotation) { transitive = false }
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(25) }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+test {
+    useJUnitPlatform()
+}

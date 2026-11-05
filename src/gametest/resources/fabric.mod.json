@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "stronghold_finder_test",
+  "version": "1.0.0",
+  "name": "Stronghold Finder tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["dev.strongholdfinder.test.StrongholdClientGameTest"]
+  }
+}
