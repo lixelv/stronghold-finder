@@ -1,58 +1,33 @@
 # Stronghold Finder
 
-Клиентский мод для Minecraft Java 26.3 на Fabric. Считает координаты крепости по броскам глаза Эндера и показывает лучи на карте Xaero's World Map.
+Fabric client mod for Minecraft Java 26.3. It finds strongholds from Eye of Ender throws and shows the rays on Xaero's World Map. The interface is in English and Russian and follows the game language.
 
-## Установка
+**Install:** put the mod, [Fabric API](https://modrinth.com/mod/fabric-api) and [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) `1.47.x` in `mods`.
 
-Положите в папку `mods`:
+**Use:**
 
-- `stronghold-finder-1.0.0.jar` из `build/libs`
-- [Fabric API](https://modrinth.com/mod/fabric-api)
-- [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) версии `1.47.x`. Мод не содержит её и без неё не запустится.
+1. Throw an eye and press `Shift+G` while it flies.
+2. Walk 200–300 blocks sideways from the ray and repeat.
+3. Press `M` for the map or `J` for coordinates, then walk to the average point.
 
-Нужны Fabric Loader 0.19.5 или новее и Java 25.
+`G` adds a ray from where you stand and look. You can rebind `G` and `J` in Controls.
 
-## Клавиши
+`Shift+G` turns your camera automatically, which many servers count as cheating. Check the server's rules first.
 
-Клавиши `G` и `J` можно переназначить в настройках управления.
+## На русском
 
-| Клавиши | Что делают |
-|---|---|
-| `G` | Добавляет луч из вашей позиции по направлению взгляда |
-| `Shift+G` | Наводит камеру на центр летящего ока и добавляет луч |
-| `J` | Открывает экран с расчётом и списками |
-| `M` | Открывает карту Xaero, на ней видны лучи и средняя точка |
+Клиентский мод Fabric для Minecraft Java 26.3. Находит крепость по броскам ока Эндера и показывает лучи на карте Xaero's World Map. Интерфейс на русском и английском, язык берётся из настроек игры.
 
-Как пользоваться:
+**Установка:** положите мод, [Fabric API](https://modrinth.com/mod/fabric-api) и [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) `1.47.x` в папку `mods`.
+
+**Как пользоваться:**
 
 1. Бросьте око и нажмите `Shift+G`, пока оно летит.
 2. Отойдите на 200–300 блоков вбок от луча и повторите.
-3. Откройте карту или экран мода и идите к средней точке.
+3. Нажмите `M` для карты или `J` для координат и идите к средней точке.
 
-Между броском и нажатием `Shift+G` лучше стоять на месте: луч считается от вашей текущей позиции.
+`G` добавляет луч из вашей позиции по направлению взгляда. `G` и `J` можно переназначить в настройках управления.
 
-Сразу после броска око висит прямо над вами и направление к нему не определить. В этом случае мод попросит подождать.
+`Shift+G` сам поворачивает камеру, и на многих серверах это считается читом. Сначала проверьте правила сервера.
 
-Око летит к ближайшей крепости. У центра мира крепости первого кольца почти равноудалены, поэтому после сдвига око может указать на другую, и лучи разойдутся. Тогда отойдите от центра в сторону одного из лучей и бросьте снова.
-
-На экране мода пробел и Enter ведут к следующему полю, а после угла бросок добавляется сам. В любое поле можно вставить строку F3+C или три числа: X, Z и угол.
-
-## Предупреждение о серверах
-
-`Shift+G` поворачивает камеру автоматически. На многих серверах такое считается читом и может привести к бану, поэтому сначала проверьте правила сервера. Мод работает только на клиенте и этого не проверяет.
-
-## Данные
-
-Броски хранятся отдельно для каждого мира и сервера в `config/stronghold_finder`.
-
-## Разработка
-
-```bash
-./gradlew build
-./gradlew runClient
-./gradlew runClientGameTest
-```
-
-`runClientGameTest` запускает настоящий клиент, нажимает клавиши и сохраняет снимки в `build/run/clientGameTest/screenshots`.
-
-Карта Xaero закрыта и не имеет публичного API. Мод использует публичные методы её внутренних классов, поэтому новая версия карты может потребовать правок. Если слой на карте сломается, он отключится, а клавиши и экран продолжат работать.
+[Как опубликовать мод на Modrinth](docs/publish-to-modrinth.md)
