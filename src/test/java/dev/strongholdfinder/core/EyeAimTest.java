@@ -1,12 +1,21 @@
 package dev.strongholdfinder.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class EyeAimTest {
+    @Test
+    void aimIsAllowedOnlyInPrivateSingleplayer() {
+        assertTrue(EyeAim.isAllowed(true, false));
+        assertFalse(EyeAim.isAllowed(true, true), "a world opened to LAN has other players");
+        assertFalse(EyeAim.isAllowed(false, false), "a remote server");
+    }
+
     @Test
     void aimsSouth() {
         Aim aim = EyeAim.compute(0, 64, 0, 0, 64, 10);

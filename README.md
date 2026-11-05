@@ -6,13 +6,11 @@ Fabric client mod for Minecraft Java 26.3. It finds strongholds from Eye of Ende
 
 **Use:**
 
-1. Throw an eye and press `Shift+G` while it flies.
+1. Throw an eye. Aim at it and press `G`, or press `Shift+G` in singleplayer and the camera aims for you.
 2. Walk 200–300 blocks sideways from the ray and repeat.
 3. Press `M` for the map or `J` for coordinates, then walk to the average point.
 
-`G` adds a ray from where you stand and look. You can rebind `G` and `J` in Controls.
-
-`Shift+G` turns your camera automatically, which many servers count as cheating. Check the server's rules first.
+`Shift+G` is off on servers and in worlds opened to LAN. You can rebind `G` and `J` in Controls.
 
 ## На русском
 
@@ -22,12 +20,10 @@ Fabric client mod for Minecraft Java 26.3. It finds strongholds from Eye of Ende
 
 **Как пользоваться:**
 
-1. Бросьте око и нажмите `Shift+G`, пока оно летит.
+1. Бросьте око. Наведите на него прицел и нажмите `G`, или нажмите `Shift+G` в одиночной игре, и камера наведётся сама.
 2. Отойдите на 200–300 блоков вбок от луча и повторите.
 3. Нажмите `M` для карты или `J` для координат и идите к средней точке.
 
-`G` добавляет луч из вашей позиции по направлению взгляда. `G` и `J` можно переназначить в настройках управления.
-
-`Shift+G` сам поворачивает камеру, и на многих серверах это считается читом. Сначала проверьте правила сервера.
+На серверах и в мирах, открытых для LAN, `Shift+G` отключён. `G` и `J` можно переназначить в настройках управления.
 
 [Как опубликовать мод на Modrinth](docs/publish-to-modrinth.md)

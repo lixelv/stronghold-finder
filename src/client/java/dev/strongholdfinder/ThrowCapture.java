@@ -11,6 +11,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.projectile.EyeOfEnder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +32,11 @@ final class ThrowCapture {
     static void fromEye(Minecraft client, ThrowStore store) {
         LocalPlayer player = client.player;
         if (!isInOverworld(client)) {
+            return;
+        }
+        MinecraftServer server = client.getSingleplayerServer();
+        if (!EyeAim.isAllowed(server != null, server != null && server.isPublished())) {
+            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.aim_singleplayer_only"));
             return;
         }
         List<EyeCandidate> eyes = client.level

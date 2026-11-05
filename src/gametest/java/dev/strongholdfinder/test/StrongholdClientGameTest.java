@@ -14,6 +14,8 @@ import java.util.List;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.TestInput;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerConnection;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.client.KeyMapping;
@@ -30,6 +32,43 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         }
         testWorldSeparation(context);
         testRealThrows(context);
+        testDedicatedServer(context);
+    }
+
+    /** On a real server Shift+G must not move the camera or add a ray, while G keeps working. */
+    private static void testDedicatedServer(ClientGameTestContext context) {
+        ThrowStore store = StrongholdFinderClient.store();
+        TestInput input = context.getInput();
+        try (TestDedicatedServerContext server = context.worldBuilder().createServer();
+                TestDedicatedServerConnection connection = server.connect()) {
+            context.waitTicks(40);
+            check(store.throwsList().isEmpty(), "a new server should start with no throws");
+            server.runCommand("gamemode creative @a");
+            server.runCommand("tp @a 0 ~ 0 0 0");
+            context.waitTicks(20);
+            input.lookAt(0, 0);
+            context.waitTick();
+
+            server.runCommand("execute as @a at @s run summon minecraft:eye_of_ender ~10 ~3 ~");
+            context.waitTicks(4);
+            float yawBefore = context.computeOnClient(client -> client.player.getYRot());
+            float pitchBefore = context.computeOnClient(client -> client.player.getXRot());
+            input.holdShift();
+            input.pressKey(ModKeys.CAPTURE);
+            input.releaseShift();
+            context.waitTick();
+            check(store.throwsList().isEmpty(), "Shift+G on a server should not add a ray");
+            float yawAfter = context.computeOnClient(client -> client.player.getYRot());
+            float pitchAfter = context.computeOnClient(client -> client.player.getXRot());
+            check(yawAfter == yawBefore && pitchAfter == pitchBefore, "Shift+G on a server should not move the camera");
+            context.takeScreenshot("server_shift_g_refused");
+
+            input.pressKey(ModKeys.CAPTURE);
+            context.waitTick();
+            check(store.throwsList().size() == 1, "G should still work on a server");
+            System.out.println("SFTEST server: Shift+G refused, G works");
+            server.runCommand("kill @e[type=minecraft:eye_of_ender]");
+        }
     }
 
     /** End to end: throw real eyes in a generated world and compare the result with the stronghold the game knows. */

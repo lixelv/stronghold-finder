@@ -10,6 +10,11 @@ public final class EyeAim {
     private EyeAim() {
     }
 
+    /** The camera only turns by itself in a world no other player can join. */
+    public static boolean isAllowed(boolean hasIntegratedServer, boolean publishedToLan) {
+        return hasIntegratedServer && !publishedToLan;
+    }
+
     public static Aim compute(double fromX, double fromY, double fromZ, double toX, double toY, double toZ) {
         double horizontal = Math.hypot(toX - fromX, toZ - fromZ);
         if (horizontal < MIN_HORIZONTAL) {
