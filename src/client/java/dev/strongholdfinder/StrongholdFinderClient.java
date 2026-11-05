@@ -2,6 +2,7 @@ package dev.strongholdfinder;
 
 import dev.strongholdfinder.core.ThrowStore;
 import dev.strongholdfinder.core.WorldKey;
+import dev.strongholdfinder.screen.StrongholdScreen;
 import dev.strongholdfinder.xaero.XaeroBridge;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -36,6 +37,9 @@ public final class StrongholdFinderClient implements ClientModInitializer {
             } else {
                 ThrowCapture.fromLook(client, store);
             }
+        }
+        while (ModKeys.OPEN_SCREEN.consumeClick()) {
+            client.gui.setScreen(new StrongholdScreen());
         }
     }
 

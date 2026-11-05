@@ -2,6 +2,7 @@ package dev.strongholdfinder.xaero;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.strongholdfinder.RayColors;
 import dev.strongholdfinder.StrongholdFinderClient;
 import dev.strongholdfinder.core.LabelPlacer;
 import dev.strongholdfinder.core.Point;
@@ -23,10 +24,7 @@ import xaero.map.graphics.renderer.multitexture.MultiTextureRenderTypeRendererPr
  * {@code info.scale} pose units. Marks scale themselves by the GUI scale to match the game's interface.
  */
 final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, StrongholdRenderer> {
-    private static final int[] RAY_COLORS = {
-        0xFF55AAFF, 0xFFFF55AA, 0xFFFFAA00, 0xFFAA88FF, 0xFF55FFAA, 0xFFFF5555, 0xFFFF55FF, 0xFF00AA66,
-    };
-    private static final int MUTED = 0xFF888888;
+    private static final int MUTED = RayColors.MUTED;
     private static final int PANEL = 0xE0101010;
     private static final int WHITE = 0xFFFFFFFF;
     private static final int MEAN_COLOR = 0xFFFFFF55;
@@ -102,8 +100,8 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         double fromCenter = Math.hypot(frame.px(source.x()), frame.py(source.z()));
         int start = (int) (Math.max(0, fromCenter - frame.diagonal) / frame.ui);
         int end = (int) ((fromCenter + frame.diagonal) / frame.ui);
-        int color = !source.on() || source.id() > RAY_COLORS.length ? MUTED : RAY_COLORS[source.id() - 1];
-        if (source.on() && source.id() <= RAY_COLORS.length) {
+        int color = RayColors.of(source);
+        if (RayColors.hasOwnColor(source)) {
             graphics.fill(start, 0, end, 1, color);
             return;
         }
@@ -139,8 +137,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
     }
 
     private static void drawThrow(Throw source, MapElementGraphics graphics, Font font) {
-        int color = !source.on() || source.id() > RAY_COLORS.length ? MUTED : RAY_COLORS[source.id() - 1];
-        graphics.fill(-7, -7, 7, 7, color);
+        graphics.fill(-7, -7, 7, 7, RayColors.of(source));
         graphics.fill(-6, -6, 6, 6, PANEL | 0xFF000000);
         String number = String.valueOf(source.id());
         graphics.drawString(font, number, -font.width(number) / 2, -4, WHITE, false);

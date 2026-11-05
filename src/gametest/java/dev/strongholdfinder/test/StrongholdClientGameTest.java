@@ -1,6 +1,8 @@
 package dev.strongholdfinder.test;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.strongholdfinder.ModKeys;
+import dev.strongholdfinder.screen.StrongholdScreen;
 import dev.strongholdfinder.StrongholdFinderClient;
 import dev.strongholdfinder.core.Geometry;
 import dev.strongholdfinder.core.Point;
@@ -13,6 +15,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.TestInput;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.client.KeyMapping;
 
 public final class StrongholdClientGameTest implements FabricClientGameTest {
@@ -21,7 +24,113 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         try (TestSingleplayerContext world = context.worldBuilder().create()) {
             testKeys(context, world);
             testMap(context, world);
+            testScreen(context);
         }
+        testWorldSeparation(context);
+    }
+
+    private static void testScreen(ClientGameTestContext context) {
+        ThrowStore store = StrongholdFinderClient.store();
+        TestInput input = context.getInput();
+        context.runOnClient(client -> store.clear());
+        input.pressKey(ModKeys.OPEN_SCREEN);
+        context.waitForScreen(StrongholdScreen.class);
+        context.waitTicks(2);
+        context.takeScreenshot("screen_empty");
+
+        input.typeChars("120 310 -47.3 ");
+        context.waitTick();
+        check(store.throwsList().size() == 1, "typing three numbers with spaces should add a throw");
+        check(last(store).x() == 120 && last(store).z() == 310 && last(store).yaw() == -47.3, "fields should map to X Z yaw");
+
+        input.typeChars("400");
+        input.pressKey(InputConstants.KEY_RETURN);
+        input.typeChars("500.5");
+        input.pressKey(InputConstants.KEY_RETURN);
+        input.typeChars("-160");
+        input.pressKey(InputConstants.KEY_RETURN);
+        context.waitTick();
+        check(store.throwsList().size() == 2, "Enter should move between fields and add after yaw");
+        check(last(store).z() == 500.5, "Enter flow should fill Z");
+
+        input.typeChars("abc ");
+        context.waitTick();
+        check(store.throwsList().size() == 2, "a bad value should not add a throw");
+        context.takeScreenshot("screen_bad_value");
+
+        paste(context, "-300\t200\n-140");
+        check(store.throwsList().size() == 3, "pasting three numbers should add a throw");
+        paste(context, "/execute in minecraft:overworld run tp @s 900.50 71.00 700.25 170.00 -32.10");
+        check(store.throwsList().size() == 4, "pasting an F3+C line should add a throw");
+        check(last(store).x() == 900.5 && last(store).z() == 700.25 && last(store).yaw() == 170, "F3+C should map to X Z yaw");
+        paste(context, "/execute in minecraft:the_nether run tp @s 1.00 2.00 3.00 4.00 5.00");
+        check(store.throwsList().size() == 4, "a Nether line should not add a throw");
+        paste(context, "1 2 3\n4 5 6");
+        check(store.throwsList().size() == 6, "several lines should add several throws");
+        context.takeScreenshot("screen_filled");
+
+        context.clickScreenButton("screen.stronghold_finder.undo");
+        context.waitTick();
+        check(store.throwsList().size() == 4, "undo should revert the last paste");
+        context.clickScreenButton("screen.stronghold_finder.overlay_on");
+        context.waitTick();
+        check(!store.overlayVisible(), "the overlay button should hide the layer");
+        context.clickScreenButton("screen.stronghold_finder.overlay_off");
+        context.waitTick();
+        check(store.overlayVisible(), "the overlay button should show the layer");
+
+        context.runOnClient(client -> {
+            client.getLanguageManager().setSelected("ru_ru");
+            client.reloadResourcePacks();
+        });
+        context.waitFor(client -> client.gui.overlay() == null, 1200);
+        context.waitTicks(5);
+        context.takeScreenshot("screen_ru");
+        input.resizeWindow(1280, 720);
+        context.waitTicks(5);
+        context.takeScreenshot("screen_ru_1280");
+        input.resizeWindow(854, 480);
+        context.setScreen(() -> null);
+        context.waitTick();
+        input.pressKey(mapKey(context));
+        context.waitTicks(40);
+        int[] center = context.computeOnClient(client ->
+                new int[] {client.getWindow().getScreenWidth() / 2, client.getWindow().getScreenHeight() / 2});
+        input.setCursorPos(center[0], center[1]);
+        input.scroll(-8);
+        context.waitTicks(30);
+        context.takeScreenshot("map_ru_far");
+        context.setScreen(() -> null);
+        context.waitTick();
+    }
+
+    private static void testWorldSeparation(ClientGameTestContext context) {
+        ThrowStore store = StrongholdFinderClient.store();
+        TestWorldSave save;
+        List<Throw> before;
+        try (TestSingleplayerContext first = context.worldBuilder().create()) {
+            context.waitTicks(20);
+            check(store.throwsList().isEmpty(), "a new world should start with no throws");
+            context.runOnClient(client -> store.add(new ThrowInput(11, 22, 33)));
+            before = store.throwsList();
+            save = first.getWorldSave();
+        }
+        try (TestSingleplayerContext second = context.worldBuilder().create()) {
+            context.waitTicks(20);
+            check(store.throwsList().isEmpty(), "another world should not see these throws");
+        }
+        try (TestSingleplayerContext again = save.open()) {
+            context.waitTicks(20);
+            check(store.throwsList().equals(before), "reopening the world should bring its throws back");
+        }
+    }
+
+    private static void paste(ClientGameTestContext context, String text) {
+        context.runOnClient(client -> client.keyboardHandler.setClipboard(text));
+        context.getInput().holdControl();
+        context.getInput().pressKey(InputConstants.KEY_V);
+        context.getInput().releaseControl();
+        context.waitTick();
     }
 
     private static void testKeys(ClientGameTestContext context, TestSingleplayerContext world) {
