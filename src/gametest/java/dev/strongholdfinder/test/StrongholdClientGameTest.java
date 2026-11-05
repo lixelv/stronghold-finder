@@ -17,6 +17,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.StructureTags;
 
 public final class StrongholdClientGameTest implements FabricClientGameTest {
     @Override
@@ -27,6 +29,63 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             testScreen(context);
         }
         testWorldSeparation(context);
+        testRealThrows(context);
+    }
+
+    /** End to end: throw real eyes in a generated world and compare the result with the stronghold the game knows. */
+    private static void testRealThrows(ClientGameTestContext context) {
+        ThrowStore store = StrongholdFinderClient.store();
+        TestInput input = context.getInput();
+        try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).create()) {
+            world.getServer().runCommand("gamemode creative @a");
+            world.getServer().runCommand("give @a minecraft:ender_eye 16");
+            BlockPos real = world.getServer().computeOnServer(server -> server.overworld()
+                    .findNearestMapStructure(StructureTags.EYE_OF_ENDER_LOCATED, BlockPos.ZERO, 100, false));
+            check(real != null, "the world should have a stronghold");
+            // Halfway to the stronghold it stays the nearest one for both throws; near spawn the ring's strongholds tie.
+            world.getServer().runCommand("tp @a " + real.getX() / 2 + " 200 " + real.getZ() / 2);
+            context.waitTicks(200);
+
+            throwEyeAndCapture(context, input);
+            check(store.throwsList().size() == 1, "the first real eye should give a ray");
+            Throw first = last(store);
+            Point side = Geometry.dir(first.yaw() + 90);
+            int nextX = (int) Math.round(first.x() + side.x() * 400);
+            int nextZ = (int) Math.round(first.z() + side.z() * 400);
+            world.getServer().runCommand("tp @a " + nextX + " 200 " + nextZ);
+            context.waitTicks(200);
+
+            throwEyeAndCapture(context, input);
+            check(store.throwsList().size() == 2, "the second real eye should give a ray");
+            for (Throw t : store.throwsList()) {
+                System.out.println("SFTEST throw " + t + " yawToStronghold=" + Geometry.yawTo(new Point(t.x(), t.z()), new Point(real.getX(), real.getZ())));
+            }
+            Point mean = store.solution().mean();
+            check(mean != null, "two real throws should give a point");
+            double err = store.solution().err();
+            double miss = Math.hypot(mean.x() - real.getX(), mean.z() - real.getZ());
+            System.out.println("SFTEST real throws: mean=" + mean + " err=" + err + " stronghold=" + real + " miss=" + miss);
+            context.setScreen(StrongholdScreen::new);
+            context.waitTicks(5);
+            context.takeScreenshot("real_throws_screen");
+            context.setScreen(() -> null);
+            context.waitTick();
+            input.pressKey(mapKey(context));
+            context.waitTicks(60);
+            context.takeScreenshot("real_throws_map");
+            context.setScreen(() -> null);
+            context.waitTick();
+            check(miss <= Math.max(err * 3, 64), "the result should land near the real stronghold, missed by " + miss);
+        }
+    }
+
+    private static void throwEyeAndCapture(ClientGameTestContext context, TestInput input) {
+        input.pressKey(options -> options.keyUse);
+        context.waitTicks(15);
+        input.holdShift();
+        input.pressKey(ModKeys.CAPTURE);
+        input.releaseShift();
+        context.waitTick();
     }
 
     private static void testScreen(ClientGameTestContext context) {
@@ -57,6 +116,17 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         context.waitTick();
         check(store.throwsList().size() == 2, "a bad value should not add a throw");
         context.takeScreenshot("screen_bad_value");
+
+        context.setScreen(StrongholdScreen::new);
+        context.waitTicks(2);
+        paste(context, "77");
+        input.typeChars(" 88 99 ");
+        context.waitTick();
+        check(store.throwsList().size() == 3, "pasting one number should fill the field on any keyboard layout");
+        check(last(store).x() == 77, "the pasted number should land in X, got " + last(store).x());
+        context.runOnClient(client -> store.remove(store.lastAddedId()));
+        context.setScreen(StrongholdScreen::new);
+        context.waitTicks(2);
 
         paste(context, "-300\t200\n-140");
         check(store.throwsList().size() == 3, "pasting three numbers should add a throw");
@@ -210,6 +280,37 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("map_zoomed_out");
         context.setScreen(() -> null);
         context.waitTick();
+
+        input.resizeWindow(1920, 1080);
+        context.waitTicks(5);
+        int gui = context.computeOnClient(client -> client.getWindow().getGuiScale());
+        System.out.println("SFTEST gui scale at 1080p: " + gui);
+        input.pressKey(mapKey(context));
+        context.waitTicks(40);
+        input.setCursorPos(960 + 5 * gui, 540 - 3 * gui);
+        context.waitTicks(5);
+        context.takeScreenshot("map_1080p_hover_off_center");
+
+        context.setScreen(() -> null);
+        context.runOnClient(client -> {
+            store.clear();
+            store.add(new ThrowInput(-3000, 0, Geometry.yawTo(new Point(-3000, 0), new Point(60, -40))));
+            store.add(new ThrowInput(-3000, 400, Geometry.yawTo(new Point(-3000, 400), new Point(60, -40))));
+            store.add(new ThrowInput(100, 400, 170));
+            store.setOn(store.lastAddedId(), false);
+        });
+        input.pressKey(mapKey(context));
+        context.waitTicks(40);
+        input.setCursorPos(960, 540);
+        input.scroll(4);
+        context.waitTicks(60);
+        double err = context.computeOnClient(client -> store.solution().err());
+        int fps = context.computeOnClient(client -> client.getFps());
+        System.out.println("SFTEST error circle err=" + err + " fps=" + fps);
+        context.takeScreenshot("map_1080p_error_circle");
+        context.setScreen(() -> null);
+        input.resizeWindow(854, 480);
+        context.waitTicks(5);
     }
 
     private static KeyMapping mapKey(ClientGameTestContext context) {
