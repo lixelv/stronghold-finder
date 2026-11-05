@@ -5,26 +5,26 @@ import java.util.List;
 import xaero.map.element.render.ElementRenderLocation;
 import xaero.map.element.render.ElementRenderProvider;
 
-final class StrongholdProvider extends ElementRenderProvider<MapMark, Object> {
+final class StrongholdProvider extends ElementRenderProvider<MapMark, MapFrame> {
     private Iterator<MapMark> marks = List.<MapMark>of().iterator();
 
     @Override
-    public void begin(ElementRenderLocation location, Object context) {
-        marks = List.<MapMark>of(new MapMark.Probe(0, 0)).iterator();
+    public void begin(ElementRenderLocation location, MapFrame frame) {
+        marks = frame.marks.iterator();
     }
 
     @Override
-    public boolean hasNext(ElementRenderLocation location, Object context) {
+    public boolean hasNext(ElementRenderLocation location, MapFrame frame) {
         return marks.hasNext();
     }
 
     @Override
-    public MapMark getNext(ElementRenderLocation location, Object context) {
+    public MapMark getNext(ElementRenderLocation location, MapFrame frame) {
         return marks.next();
     }
 
     @Override
-    public void end(ElementRenderLocation location, Object context) {
+    public void end(ElementRenderLocation location, MapFrame frame) {
         marks = List.<MapMark>of().iterator();
     }
 }
