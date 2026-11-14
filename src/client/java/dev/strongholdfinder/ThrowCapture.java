@@ -88,12 +88,12 @@ final class ThrowCapture {
         }
         Solution solution = store.solution();
         if (solution.mean() == null) {
-            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.added", store.lastAddedId()));
+            player.sendOverlayMessage(Component.translatable("message.stronghold_finder.added", store.lastAddedNumber()));
             return;
         }
         player.sendOverlayMessage(Component.translatable(
                 "message.stronghold_finder.added_result",
-                store.lastAddedId(),
+                store.lastAddedNumber(),
                 Math.round(solution.mean().x()),
                 Math.round(solution.mean().z())));
     }

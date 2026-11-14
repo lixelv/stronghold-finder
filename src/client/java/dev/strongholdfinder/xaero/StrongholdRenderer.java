@@ -85,7 +85,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
                 }
                 case MapMark.ThrowMark throwMark -> {
                     pose.scale(frame.ui, frame.ui, 1f);
-                    drawThrow(throwMark.source(), graphics, font);
+                    drawThrow(throwMark.source(), frame.numbers.of(throwMark.source()), graphics, font);
                 }
                 case MapMark.MeanMark mean -> drawMean(mean, frame, pose, graphics, font);
             }
@@ -106,8 +106,9 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         if (span == null) {
             return;
         }
-        int color = RayColors.of(source);
-        if (RayColors.hasOwnColor(source)) {
+        int number = frame.numbers.of(source);
+        int color = RayColors.of(source, number);
+        if (RayColors.hasOwnColor(source, number)) {
             graphics.fill(span.start(), 0, span.end(), 1, color);
             return;
         }
@@ -147,11 +148,11 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         }
     }
 
-    private static void drawThrow(Throw source, MapElementGraphics graphics, Font font) {
-        graphics.fill(-7, -7, 7, 7, RayColors.of(source));
+    private static void drawThrow(Throw source, int number, MapElementGraphics graphics, Font font) {
+        graphics.fill(-7, -7, 7, 7, RayColors.of(source, number));
         graphics.fill(-6, -6, 6, 6, PANEL | 0xFF000000);
-        String number = String.valueOf(source.id());
-        graphics.drawString(font, number, -font.width(number) / 2, -4, WHITE, false);
+        String label = String.valueOf(number);
+        graphics.drawString(font, label, -font.width(label) / 2, -4, WHITE, false);
     }
 
     private static void drawMean(MapMark.MeanMark mean, MapFrame frame, PoseStack pose, MapElementGraphics graphics, Font font) {

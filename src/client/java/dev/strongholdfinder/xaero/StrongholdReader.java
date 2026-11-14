@@ -134,7 +134,7 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
                 Compass side = Geometry.compass(t.source().yaw());
                 yield new Tooltip(Component.translatable(
                         "map.stronghold_finder.throw",
-                        t.source().id(),
+                        frame.numbers.of(t.source()),
                         NumberText.coordinate(t.source().x()),
                         NumberText.coordinate(t.source().z()),
                         NumberText.exact(t.source().yaw()),
@@ -142,7 +142,7 @@ final class StrongholdReader extends ElementReader<MapMark, MapFrame, Stronghold
             }
             case MapMark.PairMark p -> new Tooltip(Component.translatable(
                     "map.stronghold_finder.pair",
-                    p.pair().a().id(), p.pair().b().id(), x, z, String.format(java.util.Locale.ROOT, "%.1f", p.pair().angle())));
+                    frame.numbers.of(p.pair().a()), frame.numbers.of(p.pair().b()), x, z, String.format(java.util.Locale.ROOT, "%.1f", p.pair().angle())));
             case MapMark.MeanMark m -> new Tooltip(Component.translatable("map.stronghold_finder.mean", x, z));
             default -> null;
         };

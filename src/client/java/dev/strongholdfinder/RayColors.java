@@ -12,12 +12,15 @@ public final class RayColors {
     private RayColors() {
     }
 
-    /** A ray has its own color only when it is on and within the palette; other rays are drawn muted and dashed. */
-    public static boolean hasOwnColor(Throw source) {
-        return source.on() && source.id() <= COLORS.length;
+    /**
+     * A ray has its own color only when it is on and its shown number is within the palette;
+     * other rays are drawn muted and dashed. {@code number} is the shown number from {@code RayNumbers}.
+     */
+    public static boolean hasOwnColor(Throw source, int number) {
+        return source.on() && number >= 1 && number <= COLORS.length;
     }
 
-    public static int of(Throw source) {
-        return hasOwnColor(source) ? COLORS[source.id() - 1] : MUTED;
+    public static int of(Throw source, int number) {
+        return hasOwnColor(source, number) ? COLORS[number - 1] : MUTED;
     }
 }

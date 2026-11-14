@@ -4,6 +4,7 @@ import dev.strongholdfinder.core.Advice;
 import dev.strongholdfinder.core.AdviceLine;
 import dev.strongholdfinder.core.Compass;
 import dev.strongholdfinder.core.Geometry;
+import dev.strongholdfinder.core.RayNumbers;
 import dev.strongholdfinder.core.Solution;
 import java.util.Arrays;
 import net.minecraft.client.gui.Font;
@@ -24,7 +25,7 @@ final class ResultPanel {
     private ResultPanel() {
     }
 
-    static void extract(GuiGraphicsExtractor graphics, Font font, Solution s, int x, int y, int width, int maxY) {
+    static void extract(GuiGraphicsExtractor graphics, Font font, Solution s, RayNumbers numbers, int x, int y, int width, int maxY) {
         int at = y;
         if (s.mean() == null) {
             int missing = 2 - s.on().size();
@@ -34,7 +35,7 @@ final class ResultPanel {
             graphics.text(font, title, x, at, YELLOW);
             at += LINE + 2;
         } else {
-            at = extractResult(graphics, font, s, x, at, width);
+            at = extractResult(graphics, font, s, numbers, x, at, width);
         }
         for (AdviceLine line : Advice.of(s)) {
             Component text = Component.translatable(
@@ -50,7 +51,7 @@ final class ResultPanel {
         }
     }
 
-    private static int extractResult(GuiGraphicsExtractor graphics, Font font, Solution s, int x, int y, int width) {
+    private static int extractResult(GuiGraphicsExtractor graphics, Font font, Solution s, RayNumbers numbers, int x, int y, int width) {
         int at = y;
         String coordinates = "X " + Math.round(s.mean().x()) + "  Z " + Math.round(s.mean().z());
         int scale = font.width(coordinates) * 2 <= width - 60 ? 2 : 1;
@@ -67,7 +68,7 @@ final class ResultPanel {
         at += 9 * scale + 5;
 
         int gap = width / 2;
-        at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.walk", s.last().id()),
+        at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.walk", numbers.of(s.last())),
                 Component.translatable("screen.stronghold_finder.walk_value",
                         Math.round(s.toLast()), argument(Geometry.compass(s.yawNext()))));
         at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.yaw"),

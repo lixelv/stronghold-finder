@@ -185,7 +185,7 @@ public final class StrongholdScreen extends Screen {
             focusField(2);
             return;
         }
-        say(Component.translatable("message.stronghold_finder.added", store.lastAddedId()), false);
+        say(Component.translatable("message.stronghold_finder.added", store.lastAddedNumber()), false);
         clearFields();
         refresh();
     }
@@ -298,7 +298,7 @@ public final class StrongholdScreen extends Screen {
                 at += STATUS_LINE;
             }
         }
-        ResultPanel.extract(graphics, font, store.solution(), leftX, Math.max(at + 4, statusY + STATUS_LINE * 2 + 4), leftWidth, height - 28);
+        ResultPanel.extract(graphics, font, store.solution(), store.numbers(), leftX, Math.max(at + 4, statusY + STATUS_LINE * 2 + 4), leftWidth, height - 28);
 
         Solution solution = store.solution();
         graphics.text(font, Component.translatable("screen.stronghold_finder.throws", store.throwsList().size()), rightX, throwsHeaderY, WHITE);

@@ -132,7 +132,8 @@ final class ThrowListWidget extends ContainerObjectSelectionList<ThrowListWidget
             int color = source.on() ? 0xFFFFFFFF : RayColors.MUTED;
             int right = left + getContentWidth();
             Columns at = columnsFor(font, getContentWidth());
-            graphics.text(font, String.valueOf(source.id()), left + 2, top, RayColors.of(source));
+            int number = store.numbers().of(source);
+            graphics.text(font, String.valueOf(number), left + 2, top, RayColors.of(source, number));
             graphics.text(font, NumberText.fixed(source.x(), at.coordinateDecimals()), left + LEFT, top, color);
             graphics.text(font, NumberText.fixed(source.z(), at.coordinateDecimals()), left + LEFT + at.zAt(), top, color);
             graphics.text(font, NumberText.fixed(source.yaw(), at.angleDecimals()) + "°", left + LEFT + at.yawAt(), top, color);

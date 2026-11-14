@@ -229,4 +229,14 @@ public final class ThrowStore {
     public int lastAddedId() {
         return lastAddedId;
     }
+
+    /** Shown numbers for the current list; see {@link RayNumbers}. */
+    public RayNumbers numbers() {
+        return RayNumbers.of(state.throwsList);
+    }
+
+    /** The shown number of the last added ray. */
+    public int lastAddedNumber() {
+        return numbers().of(lastAddedId);
+    }
 }

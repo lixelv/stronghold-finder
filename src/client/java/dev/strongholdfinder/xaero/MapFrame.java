@@ -4,6 +4,7 @@ import dev.strongholdfinder.core.LabelPlacer;
 import dev.strongholdfinder.core.Pair;
 import dev.strongholdfinder.core.Solution;
 import dev.strongholdfinder.core.Throw;
+import dev.strongholdfinder.core.RayNumbers;
 import dev.strongholdfinder.core.ThrowStore;
 import dev.strongholdfinder.minimap.MinimapBridge;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ final class MapFrame {
     final List<MapMark> marks = new ArrayList<>();
     final Map<String, LabelPlacer.Box> pairLabels = new HashMap<>();
     LabelPlacer.Box meanLabel;
+    RayNumbers numbers = RayNumbers.of(List.of());
     double diagonal;
     double cameraX;
     double cameraZ;
@@ -46,6 +48,7 @@ final class MapFrame {
 
         Solution solution = store.solution();
         List<Throw> throwsList = store.throwsList();
+        numbers = RayNumbers.of(throwsList);
         List<Pair> crossings = solution.pairs().stream().filter(Pair::usable).toList();
 
         throwsList.forEach(t -> marks.add(new MapMark.RayMark(t)));
