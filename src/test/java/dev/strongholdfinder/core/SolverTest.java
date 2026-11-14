@@ -161,4 +161,37 @@ class SolverTest {
         assertTrue(Geometry.ringOf(2900, 100).inside());
         assertEquals(780, Geometry.ringOf(500, 10).gap(), 1e-9);
     }
+
+    private static Solution crossingAt(Point target) {
+        Throw a = new Throw(1, target.x() - 300, target.z() - 400, Geometry.yawTo(new Point(target.x() - 300, target.z() - 400), target), true);
+        Throw b = new Throw(2, target.x() + 300, target.z() - 400, Geometry.yawTo(new Point(target.x() + 300, target.z() - 400), target), true);
+        return Solver.solve(List.of(a, b), Map.of());
+    }
+
+    @Test
+    void crossingInsideRingIsInRing() {
+        assertTrue(pair(crossingAt(new Point(1500, 0)), "1-2").inRing());
+    }
+
+    @Test
+    void crossingFarOutsideRingIsNotInRingButCounts() {
+        Solution s = crossingAt(new Point(600, 0));
+        Pair p = pair(s, "1-2");
+        assertFalse(p.inRing());
+        assertTrue(p.used());
+        assertEquals(600, s.mean().x(), 0.5);
+        assertEquals(0, s.mean().z(), 0.5);
+    }
+
+    @Test
+    void crossingNearRingEdgeIsInRing() {
+        assertTrue(pair(crossingAt(new Point(1280 - 50, 0)), "1-2").inRing());
+        assertFalse(pair(crossingAt(new Point(1280 - 100, 0)), "1-2").inRing());
+    }
+
+    @Test
+    void meanOutsideRingKeepsItsOwnCheck() {
+        assertFalse(crossingAt(new Point(600, 0)).ring().inside());
+        assertTrue(crossingAt(new Point(1500, 0)).ring().inside());
+    }
 }

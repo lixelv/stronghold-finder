@@ -86,7 +86,8 @@ public final class Solver {
                 Intersection r = intersect(a, b);
                 boolean usable = r.status() == PairStatus.OK || r.status() == PairStatus.WEAK;
                 boolean used = usable && over.getOrDefault(key, r.status() == PairStatus.OK);
-                pairs.add(new Pair(key, a, b, r.status(), r.angle(), r.x(), r.z(), usable, used));
+                boolean inRing = usable && Geometry.inRing(Math.hypot(r.x(), r.z()));
+                pairs.add(new Pair(key, a, b, r.status(), r.angle(), r.x(), r.z(), usable, used, inRing));
             }
         }
         boolean weakFallback = false;
@@ -94,7 +95,7 @@ public final class Solver {
             for (int i = 0; i < pairs.size(); i++) {
                 Pair p = pairs.get(i);
                 if (p.status() == PairStatus.WEAK && !over.containsKey(p.key())) {
-                    pairs.set(i, new Pair(p.key(), p.a(), p.b(), p.status(), p.angle(), p.x(), p.z(), p.usable(), true));
+                    pairs.set(i, new Pair(p.key(), p.a(), p.b(), p.status(), p.angle(), p.x(), p.z(), p.usable(), true, p.inRing()));
                     weakFallback = true;
                 }
             }

@@ -44,6 +44,14 @@ public final class Geometry {
         return Compass.values()[(index % 8 + 8) % 8];
     }
 
+    /** Margin around the rings for a single crossing, in blocks. */
+    public static final double CROSSING_MARGIN = 64;
+
+    /** True when a crossing this far from 0,0 lies within a stronghold ring, give or take {@link #CROSSING_MARGIN}. */
+    public static boolean inRing(double distance) {
+        return ringOf(distance, CROSSING_MARGIN).inside();
+    }
+
     public static Ring ringOf(double distance, double tolerance) {
         for (int i = 0; i < RINGS.length; i++) {
             if (distance >= RINGS[i][0] && distance <= RINGS[i][1]) {
