@@ -28,7 +28,7 @@ public final class EntryParser {
     private static ParsedPaste parseLine(String line) {
         Matcher f3 = F3C.matcher(line);
         if (f3.find()) {
-            if (!f3.group(1).toLowerCase(java.util.Locale.ROOT).contains("overworld")) {
+            if (!Dimensions.hasRays(f3.group(1))) {
                 return new ParsedPaste.WrongDimension();
             }
             Double x = num(f3.group(2));

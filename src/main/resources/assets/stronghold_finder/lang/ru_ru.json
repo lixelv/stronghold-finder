@@ -7,7 +7,7 @@
   "message.stronghold_finder.duplicate": "Такой луч уже есть",
   "message.stronghold_finder.reading_eye": "Читаю полёт ока…",
   "message.stronghold_finder.no_eye": "Не увидел око Эндера",
-  "message.stronghold_finder.overworld_only": "Лучи работают только в обычном мире",
+  "message.stronghold_finder.overworld_only": "Лучи не работают в Незере и Энде",
   "map.stronghold_finder.throw": "Бросок %s: X %s, Z %s, угол %s°, на %s",
   "map.stronghold_finder.pair": "Лучи %s × %s: X %s, Z %s, угол %s°",
   "map.stronghold_finder.mean": "Средняя точка: X %s, Z %s",

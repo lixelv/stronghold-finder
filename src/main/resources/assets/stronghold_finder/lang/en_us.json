@@ -7,7 +7,7 @@
   "message.stronghold_finder.duplicate": "This ray already exists",
   "message.stronghold_finder.reading_eye": "Reading the eye's flight…",
   "message.stronghold_finder.no_eye": "Didn't see an Eye of Ender",
-  "message.stronghold_finder.overworld_only": "Rays only work in the Overworld",
+  "message.stronghold_finder.overworld_only": "Rays do not work in the Nether or the End",
   "map.stronghold_finder.throw": "Throw %s: X %s, Z %s, yaw %s°, towards %s",
   "map.stronghold_finder.pair": "Rays %s × %s: X %s, Z %s, angle %s°",
   "map.stronghold_finder.mean": "Average point: X %s, Z %s",

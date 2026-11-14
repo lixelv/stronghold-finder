@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.strongholdfinder.RayColors;
 import dev.strongholdfinder.StrongholdFinderClient;
+import dev.strongholdfinder.core.Dimensions;
 import dev.strongholdfinder.core.LabelPlacer;
 import dev.strongholdfinder.core.MapShapes;
 import dev.strongholdfinder.core.Point;
@@ -12,7 +13,6 @@ import dev.strongholdfinder.core.Throw;
 import dev.strongholdfinder.core.ThrowStore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.world.level.Level;
 import xaero.lib.client.graphics.XaeroBufferProvider;
 import xaero.map.element.MapElementGraphics;
 import xaero.map.element.render.ElementRenderInfo;
@@ -46,7 +46,8 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         frame.clear();
         try {
             ThrowStore store = StrongholdFinderClient.store();
-            if (store.overlayVisible() && Level.OVERWORLD.equals(info.mapDimension)) {
+            if (store.overlayVisible() && info.mapDimension != null
+                    && Dimensions.hasRays(info.mapDimension.identifier().toString())) {
                 Minecraft client = Minecraft.getInstance();
                 frame.build(store, client.font, client.getWindow().getWidth(), client.getWindow().getHeight(),
                         info.renderPos.x, info.renderPos.z, info.scale, (float) client.getWindow().getGuiScale());

@@ -1,9 +1,9 @@
 package dev.strongholdfinder.minimap;
 
+import dev.strongholdfinder.core.Dimensions;
 import dev.strongholdfinder.core.ThrowStore;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +21,9 @@ public final class MinimapBridge {
         return failed;
     }
 
-    /** Coordinates only mean something in the Overworld, so other dimensions leave the waypoint alone. */
+    /** Coordinates only mean something in an overworld, so the Nether and the End leave the waypoint alone. */
     public static void tick(Minecraft client, ThrowStore store) {
-        if (!INSTALLED || failed || client.level.dimension() != Level.OVERWORLD) {
+        if (!INSTALLED || failed || !Dimensions.hasRays(client.level.dimension().identifier().toString())) {
             return;
         }
         try {

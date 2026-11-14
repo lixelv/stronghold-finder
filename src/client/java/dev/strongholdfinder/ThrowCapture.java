@@ -1,6 +1,7 @@
 package dev.strongholdfinder;
 
 import dev.strongholdfinder.core.AddResult;
+import dev.strongholdfinder.core.Dimensions;
 import dev.strongholdfinder.core.AngleRay;
 import dev.strongholdfinder.core.EyeRayCapture;
 import dev.strongholdfinder.core.EyeSample;
@@ -13,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.projectile.EyeOfEnder;
-import net.minecraft.world.level.Level;
 
 final class ThrowCapture {
     private static final double EYE_SEARCH_RADIUS = 64;
@@ -26,14 +26,14 @@ final class ThrowCapture {
 
     static void fromLook(Minecraft client, ThrowStore store) {
         LocalPlayer player = client.player;
-        if (isInOverworld(client)) {
+        if (canCastRays(client)) {
             record(player, store, new AngleRay(new Point(player.getX(), player.getZ()), player.getYRot()));
         }
     }
 
     /** Starts watching the newest eye. The ray comes on a later tick, from {@link #tick}. */
     static void fromEye(Minecraft client, ThrowStore store) {
-        if (eyeCapture != null || !isInOverworld(client)) {
+        if (eyeCapture != null || !canCastRays(client)) {
             return;
         }
         EyeOfEnder eye = client.level
@@ -73,8 +73,8 @@ final class ThrowCapture {
         eyeCapture = null;
     }
 
-    private static boolean isInOverworld(Minecraft client) {
-        if (client.level.dimension() == Level.OVERWORLD) {
+    private static boolean canCastRays(Minecraft client) {
+        if (Dimensions.hasRays(client.level.dimension().identifier().toString())) {
             return true;
         }
         client.player.sendOverlayMessage(Component.translatable("message.stronghold_finder.overworld_only"));

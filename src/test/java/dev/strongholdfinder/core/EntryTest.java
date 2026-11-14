@@ -82,6 +82,16 @@ class EntryTest {
     }
 
     @Test
+    void pasteReadsF3cFromCustomOverworlds() {
+        assertEquals(
+                List.of(new ThrowInput(1, 3, 4)),
+                throwsOf("/execute in minecraft:game_world run tp @s 1.00 2.00 3.00 4.00 5.00"));
+        assertInstanceOf(
+                ParsedPaste.WrongDimension.class,
+                EntryParser.parsePaste("/execute in minecraft:game_world_nether run tp @s 1.00 2.00 3.00 4.00 5.00"));
+    }
+
+    @Test
     void pasteRejectsAnythingElse() {
         for (String t : new String[] {"", "hello", "1 2", "1 2 3 4", "1 2 x", "1 2 3\nhello"}) {
             assertInstanceOf(ParsedPaste.Invalid.class, EntryParser.parsePaste(t), t);
