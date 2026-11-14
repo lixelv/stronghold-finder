@@ -81,7 +81,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
                 case MapMark.PairMark pair -> {
                     drawLabel(frame.pairLabels.get(pair.pair().key()), MapFrame.pairText(pair.pair()), mark, frame, pose, graphics, font);
                     pose.scale(frame.ui, frame.ui, 1f);
-                    drawDot(pair.pair().used(), hovered, graphics);
+                    drawDot(pair.pair().used(), pair.pair().inRing(), hovered, graphics);
                 }
                 case MapMark.ThrowMark throwMark -> {
                     pose.scale(frame.ui, frame.ui, 1f);
@@ -136,15 +136,16 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         }
     }
 
-    private static void drawDot(boolean used, boolean hovered, MapElementGraphics graphics) {
+    private static void drawDot(boolean used, boolean inRing, boolean hovered, MapElementGraphics graphics) {
         int half = hovered ? 3 : 2;
+        int edge = inRing ? MUTED : RayColors.OUT_OF_RING;
         graphics.fill(-half - 1, -half - 1, half + 1, half + 1, 0xFF000000);
-        graphics.fill(-half, -half, half, half, used ? WHITE : 0xFF000000);
+        graphics.fill(-half, -half, half, half, used ? (inRing ? WHITE : RayColors.OUT_OF_RING) : 0xFF000000);
         if (!used) {
-            graphics.fill(-half, -half, half, -half + 1, MUTED);
-            graphics.fill(-half, half - 1, half, half, MUTED);
-            graphics.fill(-half, -half, -half + 1, half, MUTED);
-            graphics.fill(half - 1, -half, half, half, MUTED);
+            graphics.fill(-half, -half, half, -half + 1, edge);
+            graphics.fill(-half, half - 1, half, half, edge);
+            graphics.fill(-half, -half, -half + 1, half, edge);
+            graphics.fill(half - 1, -half, half, half, edge);
         }
     }
 
@@ -157,6 +158,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
 
     private static void drawMean(MapMark.MeanMark mean, MapFrame frame, PoseStack pose, MapElementGraphics graphics, Font font) {
         Point point = mean.point();
+        int color = mean.inRing() ? MEAN_COLOR : RayColors.OUT_OF_RING_MEAN;
         String text = "X " + Math.round(point.x()) + ", Z " + Math.round(point.z());
         LabelPlacer.Box box = frame.meanLabel;
         if (box != null) {
@@ -166,7 +168,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
             int width = font.width(text) + MapFrame.MEAN_PADDING * 2;
             int height = MapFrame.LABEL_HEIGHT + MapFrame.MEAN_PADDING * 2;
             graphics.fill(0, 0, width, height, PANEL);
-            graphics.drawString(font, text, MapFrame.MEAN_PADDING, MapFrame.MEAN_PADDING, MEAN_COLOR, false);
+            graphics.drawString(font, text, MapFrame.MEAN_PADDING, MapFrame.MEAN_PADDING, color, false);
             pose.popPose();
         }
         if (!mean.diamond()) {
@@ -175,7 +177,7 @@ final class StrongholdRenderer extends ElementRenderer<MapMark, MapFrame, Strong
         pose.scale(frame.ui, frame.ui, 1f);
         pose.rotateDegrees(Axis.ZP, 45);
         graphics.fill(-6, -6, 6, 6, 0xFF000000);
-        graphics.fill(-5, -5, 5, 5, MEAN_COLOR);
+        graphics.fill(-5, -5, 5, 5, color);
     }
 
     private static void drawLabel(LabelPlacer.Box box, String text, MapMark mark, MapFrame frame, PoseStack pose, MapElementGraphics graphics, Font font) {

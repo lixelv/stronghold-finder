@@ -58,7 +58,7 @@ final class ResultPanel {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x, at);
         graphics.pose().scale(scale, scale);
-        graphics.text(font, coordinates, 0, 0, YELLOW);
+        graphics.text(font, coordinates, 0, 0, s.ring().inside() ? YELLOW : RED);
         graphics.pose().popMatrix();
 
         String grade = s.err() <= 30 ? "good" : s.err() <= 100 ? "fair" : "rough";
@@ -79,7 +79,7 @@ final class ResultPanel {
                 ? Component.translatable("screen.stronghold_finder.ring_value",
                         s.ring().n(), Geometry.RINGS[s.ring().n() - 1][0], Geometry.RINGS[s.ring().n() - 1][1])
                 : Component.translatable("screen.stronghold_finder.ring_outside");
-        at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.ring"), ring);
+        at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.ring"), ring, s.ring().inside() ? WHITE : RED);
         at = row(graphics, font, x, at, gap, Component.translatable("screen.stronghold_finder.chunk"),
                 Component.literal(Math.floorDiv(Math.round(s.mean().x()), 16) + ", " + Math.floorDiv(Math.round(s.mean().z()), 16)));
         if (s.lsq() != null) {
@@ -90,8 +90,12 @@ final class ResultPanel {
     }
 
     private static int row(GuiGraphicsExtractor graphics, Font font, int x, int y, int gap, Component label, Component value) {
+        return row(graphics, font, x, y, gap, label, value, WHITE);
+    }
+
+    private static int row(GuiGraphicsExtractor graphics, Font font, int x, int y, int gap, Component label, Component value, int color) {
         graphics.text(font, font.plainSubstrByWidth(label.getString(), gap - 4), x, y, GRAY);
-        graphics.text(font, value, x + gap, y, WHITE);
+        graphics.text(font, value, x + gap, y, color);
         return y + LINE;
     }
 

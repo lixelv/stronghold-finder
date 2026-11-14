@@ -1,5 +1,6 @@
 package dev.strongholdfinder.screen;
 
+import dev.strongholdfinder.RayColors;
 import dev.strongholdfinder.core.Pair;
 import dev.strongholdfinder.core.PairStatus;
 import dev.strongholdfinder.core.RayNumbers;
@@ -83,7 +84,7 @@ final class PairListWidget extends ContainerObjectSelectionList<PairListWidget.R
             Font font = minecraft.font;
             int left = getContentX();
             int top = getContentYMiddle() - 4;
-            int color = pair.used() ? 0xFFFFFFFF : 0xFFAAAAAA;
+            int color = pair.usable() && !pair.inRing() ? RayColors.OUT_OF_RING : pair.used() ? 0xFFFFFFFF : 0xFFAAAAAA;
             int right = left + getContentWidth();
             RayNumbers numbers = store.numbers();
             graphics.text(font, numbers.of(pair.a()) + "×" + numbers.of(pair.b()), left + 2, top, color);

@@ -57,7 +57,7 @@ public sealed interface MapMark {
         }
     }
 
-    record MeanMark(Point point, boolean diamond) implements MapMark {
+    record MeanMark(Point point, boolean diamond, boolean inRing) implements MapMark {
         @Override
         public double x() {
             return point.x();

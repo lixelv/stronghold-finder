@@ -58,7 +58,7 @@ final class MapFrame {
         crossings.forEach(p -> marks.add(new MapMark.PairMark(p)));
         throwsList.forEach(t -> marks.add(new MapMark.ThrowMark(t)));
         if (solution.mean() != null) {
-            marks.add(new MapMark.MeanMark(solution.mean(), !MinimapBridge.showsPoint()));
+            marks.add(new MapMark.MeanMark(solution.mean(), !MinimapBridge.showsPoint(), solution.ring().inside()));
         }
 
         LabelPlacer placer = new LabelPlacer(-width / 2, -height / 2, width / 2, height / 2);

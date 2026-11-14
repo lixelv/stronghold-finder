@@ -36,6 +36,12 @@ final class GoldPoint {
         Waypoint point = find(set);
         GoldPointAction action = GoldPointAction.of(solution, point != null);
         if (action == GoldPointAction.NONE) {
+            // The point may stay put while the ring check flips, for example after a pair is switched off.
+            if (point == null || solution.mean() == null || point.getWaypointColor() == colorFor(solution)) {
+                return;
+            }
+            point.setWaypointColor(colorFor(solution));
+            session.getWaypointSession().setSetChangedTime(System.currentTimeMillis());
             return;
         }
         if (action == GoldPointAction.REMOVE) {
@@ -46,15 +52,21 @@ final class GoldPoint {
             boolean russian = client.getLanguageManager().getSelected().startsWith("ru");
             String name = GoldPointName.of(russian);
             if (action == GoldPointAction.CREATE) {
-                set.add(new Waypoint(x, Y, z, name, SYMBOL, WaypointColor.GOLD));
+                set.add(new Waypoint(x, Y, z, name, SYMBOL, colorFor(solution)));
             } else {
                 point.setX(x);
                 point.setZ(z);
                 point.setName(name);
+                point.setWaypointColor(colorFor(solution));
             }
         }
         // World Map keeps its own copies of the waypoints and refreshes them when this time changes.
         session.getWaypointSession().setSetChangedTime(System.currentTimeMillis());
+    }
+
+    /** Gold inside a stronghold ring, red outside every ring. */
+    private static WaypointColor colorFor(Solution solution) {
+        return solution.ring() != null && !solution.ring().inside() ? WaypointColor.RED : WaypointColor.GOLD;
     }
 
     static boolean exists() {
@@ -75,7 +87,7 @@ final class GoldPoint {
         for (Waypoint point : set.getWaypoints()) {
             if (GoldPointName.isOurs(point.getName())
                     && SYMBOL.equals(point.getSymbol())
-                    && point.getWaypointColor() == WaypointColor.GOLD) {
+                    && (point.getWaypointColor() == WaypointColor.GOLD || point.getWaypointColor() == WaypointColor.RED)) {
                 return point;
             }
         }
