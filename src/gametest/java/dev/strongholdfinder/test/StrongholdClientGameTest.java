@@ -65,21 +65,23 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             float yawBefore = context.computeOnClient(client -> client.player.getYRot());
             float pitchBefore = context.computeOnClient(client -> client.player.getXRot());
             throwEyeAndCapture(context, input, 10);
-            check(store.throwsList().size() == 1, "Shift+G on a server should add a ray");
+            check(store.throwsList().size() == 1, "G on a server should add a ray");
             Throw thrown = last(store);
-            check(thrown.ray() instanceof TwoPointRay, "Shift+G should give a two-point ray, got " + thrown.ray());
+            check(thrown.ray() instanceof TwoPointRay, "G should give a two-point ray, got " + thrown.ray());
             double yawToStronghold = Geometry.yawTo(new Point(thrown.x(), thrown.z()), new Point(real.getX(), real.getZ()));
             double off = Math.abs(Geometry.normYaw(thrown.yaw() - yawToStronghold));
-            System.out.println("SFTEST server: Shift+G off by " + off + " degrees");
+            System.out.println("SFTEST server: G off by " + off + " degrees");
             check(off < 0.01, "the ray should point at the stronghold, off by " + off);
             float yawAfter = context.computeOnClient(client -> client.player.getYRot());
             float pitchAfter = context.computeOnClient(client -> client.player.getXRot());
-            check(yawAfter == yawBefore && pitchAfter == pitchBefore, "Shift+G should not move the camera");
+            check(yawAfter == yawBefore && pitchAfter == pitchBefore, "G should not move the camera");
             context.takeScreenshot("server_shift_g");
 
+            input.holdShift();
             input.pressKey(ModKeys.CAPTURE);
+            input.releaseShift();
             context.waitTick();
-            check(store.throwsList().size() == 2, "G should still work on a server");
+            check(store.throwsList().size() == 2, "Shift+G should still work on a server");
             server.runCommand("kill @e[type=minecraft:eye_of_ender]");
         }
     }
@@ -102,7 +104,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             throwEyeAndCapture(context, input, 3);
             check(store.throwsList().size() == 1, "the first real eye should give a ray");
             Throw first = last(store);
-            check(first.ray() instanceof TwoPointRay, "Shift+G should give a two-point ray, got " + first.ray());
+            check(first.ray() instanceof TwoPointRay, "G should give a two-point ray, got " + first.ray());
             Point side = Geometry.dir(first.yaw() + 90);
             int nextX = (int) Math.round(first.x() + side.x() * 400);
             int nextZ = (int) Math.round(first.z() + side.z() * 400);
@@ -134,11 +136,9 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
             // Too late: the eye may already fly back, so it counts as not seen.
             input.pressKey(options -> options.keyUse);
             context.waitTicks(40);
-            input.holdShift();
             input.pressKey(ModKeys.CAPTURE);
-            input.releaseShift();
             context.waitTicks(3);
-            check(store.throwsList().size() == 2, "a late Shift+G should not add a ray");
+            check(store.throwsList().size() == 2, "a late G should not add a ray");
             context.takeScreenshot("late_eye_not_seen");
         }
     }
@@ -146,9 +146,7 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
     private static void throwEyeAndCapture(ClientGameTestContext context, TestInput input, int delay) {
         input.pressKey(options -> options.keyUse);
         context.waitTicks(delay);
-        input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
-        input.releaseShift();
         context.waitTicks(EyeRayCapture.LAST_TICK + 2);
     }
 
@@ -276,41 +274,43 @@ public final class StrongholdClientGameTest implements FabricClientGameTest {
         context.waitTicks(40);
 
         context.getInput().lookAt(0, 0);
+        input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
+        input.releaseShift();
         context.waitTick();
-        check(store.throwsList().size() == 1, "G should add one ray");
+        check(store.throwsList().size() == 1, "Shift+G should add one ray");
         check(Math.abs(last(store).yaw()) < 0.01, "looking south should give yaw 0, got " + last(store).yaw());
-
-        input.pressKey(ModKeys.CAPTURE);
-        context.waitTick();
-        check(store.throwsList().size() == 1, "repeating G without moving should not add a ray");
 
         input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
         input.releaseShift();
         context.waitTick();
-        check(store.throwsList().size() == 1, "Shift+G without an eye should not add a ray");
+        check(store.throwsList().size() == 1, "repeating Shift+G without moving should not add a ray");
+
+        input.pressKey(ModKeys.CAPTURE);
+        context.waitTick();
+        check(store.throwsList().size() == 1, "G without an eye should not add a ray");
         context.takeScreenshot("no_eye_message");
 
         // A summoned eye has no target and never moves, so there is no direction to read.
         world.getServer().runCommand("execute as @a at @s run summon minecraft:eye_of_ender ~10 ~3 ~");
         context.waitTicks(4);
         float yawBefore = context.computeOnClient(client -> client.player.getYRot());
-        input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
-        input.releaseShift();
         context.waitTicks(40);
-        check(store.throwsList().size() == 1, "Shift+G on an eye that does not move should not add a ray");
+        check(store.throwsList().size() == 1, "G on an eye that does not move should not add a ray");
         float yawAfter = context.computeOnClient(client -> client.player.getYRot());
-        check(yawAfter == yawBefore, "Shift+G should not move the camera");
+        check(yawAfter == yawBefore, "G should not move the camera");
         context.takeScreenshot("eye_standing_still");
 
         world.getServer().runCommand("kill @e[type=minecraft:eye_of_ender]");
         world.getServer().runCommand("execute in minecraft:the_nether run tp @a 0 128 0");
         context.waitTicks(60);
+        input.holdShift();
         input.pressKey(ModKeys.CAPTURE);
+        input.releaseShift();
         context.waitTick();
-        check(store.throwsList().size() == 1, "G in the Nether should not add a ray");
+        check(store.throwsList().size() == 1, "Shift+G in the Nether should not add a ray");
         world.getServer().runCommand("execute in minecraft:overworld run tp @a 0 100 0");
         context.waitTicks(60);
     }

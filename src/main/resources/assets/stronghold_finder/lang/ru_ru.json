@@ -1,6 +1,6 @@
 {
   "key.category.stronghold_finder.main": "Поиск крепости",
-  "key.stronghold_finder.capture": "Добавить луч (Shift: по летящему оку)",
+  "key.stronghold_finder.capture": "Добавить луч по летящему оку (Shift: по прицелу)",
   "key.stronghold_finder.open": "Открыть экран",
   "message.stronghold_finder.added": "Луч %s добавлен",
   "message.stronghold_finder.added_result": "Луч %s добавлен. Крепость: X %s, Z %s",
@@ -27,7 +27,7 @@
   "stronghold_finder.short.compass.north_east": "СВ",
   "stronghold_finder.short.compass.east": "В",
   "stronghold_finder.short.compass.south_east": "ЮВ",
-  "stronghold_finder.advice.first_throw": "Бросьте око и сразу нажмите Shift+G, или наведите на него прицел и нажмите G. Отойдите вбок и повторите.",
+  "stronghold_finder.advice.first_throw": "Бросьте око и сразу нажмите G, или наведите на него прицел и нажмите Shift+G. Отойдите вбок и повторите.",
   "stronghold_finder.advice.move_aside": "Отойдите на 200–300 блоков на %s или %s, то есть вбок от луча, и бросьте ещё раз.",
   "stronghold_finder.advice.go": "Можно идти. На подходе бросьте ещё одно око, чтобы уточнить точку.",
   "stronghold_finder.advice.refine": "Чтобы уточнить, отойдите примерно на %s блоков на %s или %s и бросьте ещё раз.",

@@ -42,9 +42,9 @@ public final class StrongholdFinderClient implements ClientModInitializer {
         }
         if (captureEdge.update(clicked, ModKeys.CAPTURE.isDown())) {
             if (client.hasShiftDown()) {
-                ThrowCapture.fromEye(client, store);
-            } else {
                 ThrowCapture.fromLook(client, store);
+            } else {
+                ThrowCapture.fromEye(client, store);
             }
         }
         while (ModKeys.OPEN_SCREEN.consumeClick()) {

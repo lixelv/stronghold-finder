@@ -1,6 +1,6 @@
 {
   "key.category.stronghold_finder.main": "Stronghold Finder",
-  "key.stronghold_finder.capture": "Add ray (Shift: from the flying eye)",
+  "key.stronghold_finder.capture": "Add ray from the flying eye (Shift: from your aim)",
   "key.stronghold_finder.open": "Open screen",
   "message.stronghold_finder.added": "Ray %s added",
   "message.stronghold_finder.added_result": "Ray %s added. Stronghold: X %s, Z %s",
@@ -27,7 +27,7 @@
   "stronghold_finder.short.compass.north_east": "NE",
   "stronghold_finder.short.compass.east": "E",
   "stronghold_finder.short.compass.south_east": "SE",
-  "stronghold_finder.advice.first_throw": "Throw an eye and press Shift+G right away, or aim at it and press G. Walk sideways and repeat.",
+  "stronghold_finder.advice.first_throw": "Throw an eye and press G right away, or aim at it and press Shift+G. Walk sideways and repeat.",
   "stronghold_finder.advice.move_aside": "Walk 200–300 blocks %s or %s, sideways from the ray, and throw again.",
   "stronghold_finder.advice.go": "You can go. Throw another eye on the way to refine the point.",
   "stronghold_finder.advice.refine": "To refine, walk about %s blocks %s or %s and throw again.",

@@ -64,7 +64,8 @@ final class MinimapChecks {
         check(created.size() == 1, "two rays should make one waypoint, got " + created.size());
         Waypoint point = created.get(0);
         check(point.getX() == 30 && point.getZ() == 40, "the waypoint should be at the average, got " + point.getX() + " " + point.getZ());
-        check(point.getWaypointColor() == WaypointColor.GOLD, "the waypoint should be gold");
+        // 50 blocks from 0,0 is outside every stronghold ring, so the waypoint is red.
+        check(point.getWaypointColor() == WaypointColor.RED, "outside every ring the waypoint should be red");
         check(point.getY() == 64, "the waypoint should use the fixed height");
         check(context.computeOnClient(client -> MinimapBridge.showsPoint()), "the bridge should see the waypoint");
         context.waitTicks(20);
@@ -75,11 +76,18 @@ final class MinimapChecks {
         context.setScreen(() -> null);
         context.waitTick();
 
-        // A change moves the same waypoint.
+        // Inside a stronghold ring the same waypoint turns gold.
+        addTwoRaysTo(context, store, new Point(1100, 1000));
+        List<Waypoint> inRing = points(context);
+        check(inRing.size() == 1 && inRing.get(0) == point, "a result inside a ring should keep the same waypoint");
+        check(point.getWaypointColor() == WaypointColor.GOLD, "inside a ring the waypoint should be gold");
+
+        // A change moves the same waypoint, and outside the rings it turns red again.
         addTwoRaysTo(context, store, new Point(-20, 70));
         List<Waypoint> moved = points(context);
         check(moved.size() == 1 && moved.get(0) == point, "a new result should move the same waypoint");
         check(point.getX() == -20 && point.getZ() == 70, "the waypoint should follow the average, got " + point.getX() + " " + point.getZ());
+        check(point.getWaypointColor() == WaypointColor.RED, "back outside the rings the waypoint should be red");
 
         // Deleted by the player: stays gone until the next change, then comes back.
         context.runOnClient(client -> set().remove(point));

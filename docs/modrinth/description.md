@@ -10,7 +10,7 @@ Stronghold Finder works out where a stronghold is from two or more Eye of Ender 
 
 ### How to use it
 
-1. Throw an eye and press `Shift+G` within about 1.5 seconds. The mod reads the flying eye and doesn't touch your camera. You can also aim at the eye yourself and press `G`.
+1. Throw an eye and press `G` within about 1.5 seconds. The mod reads the flying eye and doesn't touch your camera. You can also aim at the eye yourself and press `Shift+G`.
 2. Walk 200–300 blocks sideways from the ray and throw again.
 3. Press `M` to see the rays on Xaero's World Map, or `J` to see the coordinates. Walk to the average point.
 
@@ -29,7 +29,7 @@ Stronghold Finder works out where a stronghold is from two or more Eye of Ender 
 
 - **Requires** [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) `1.47.x` and [Fabric API](https://modrinth.com/mod/fabric-api) on Minecraft Java 26.3.
 - **Client only.** The server doesn't need it.
-- **Neither key moves your camera.** `Shift+G` only reads where the flying eye is, and it works on servers too. If you press it too late, the mod says it didn't see the eye, so throw another one.
+- **Neither key moves your camera.** `G` only reads where the flying eye is, and it works on servers too. If you press it too late, the mod says it didn't see the eye, so throw another one.
 - **Xaero's Minimap is optional.** Without it you still get everything on the World Map.
 - **Check the rules of your server.** Some servers don't allow helper mods like this one.
 - **Near the world center,** rays can point at different strongholds, because the first ring's strongholds are almost equally far away. If the rays diverge, walk away from the center along one of them and throw again.
@@ -44,7 +44,7 @@ The code is on [GitHub](https://github.com/lixelv/stronghold-finder) under the M
 
 | File | Title | Description |
 |---|---|---|
-| `stronghold-finder-01-aim-at-eye.png` | Add a ray | Aim at the flying eye and press `G`, or press `Shift+G` and let the mod read it. |
+| `stronghold-finder-01-aim-at-eye.png` | Add a ray | Aim at the flying eye and press `Shift+G`, or press `G` and let the mod read it. |
 | `stronghold-finder-02-rays-on-map.png` | Rays on the map | Three throws and the point where they meet on Xaero's World Map. |
 | `stronghold-finder-03-crossings-and-average.png` | Crossings and average | Each crossing, the average point, and the circle around it. |
 | `stronghold-finder-04-result-screen.png` | Result screen | Coordinates, direction, and the list of throws. |
@@ -81,7 +81,7 @@ Stronghold Finder определяет положение крепости по 
 
 **Как пользоваться**
 
-1. Бросьте око и в течение примерно 1,5 секунды нажмите `Shift+G`. Мод считает направление по летящему оку, камера не двигается. Можно и самим навести прицел на око и нажать `G`.
+1. Бросьте око и в течение примерно 1,5 секунды нажмите `G`. Мод считает направление по летящему оку, камера не двигается. Можно и самим навести прицел на око и нажать `Shift+G`.
 2. Отойдите на 200–300 блоков вбок от луча и бросьте снова.
 3. Нажмите `M`, чтобы увидеть лучи на карте Xaero's World Map, или `J`, чтобы увидеть координаты. Идите к средней точке.
 
@@ -89,7 +89,7 @@ Stronghold Finder определяет положение крепости по 
 
 - Нужны [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) `1.47.x` и [Fabric API](https://modrinth.com/mod/fabric-api), версия игры Minecraft Java 26.3.
 - Мод работает только на клиенте.
-- Обе клавиши не двигают камеру. `Shift+G` только читает положение летящего ока и работает и на серверах. Если нажать слишком поздно, мод скажет, что не увидел око, и нужно бросить новое.
+- Обе клавиши не двигают камеру. `G` только читает положение летящего ока и работает и на серверах. Если нажать слишком поздно, мод скажет, что не увидел око, и нужно бросить новое.
 - Xaero's Minimap необязательна. С ней крепость отмечает золотая точка, которая сама двигается при изменении бросков.
 - Проверьте правила своего сервера: на некоторых такие моды запрещены.
 - У центра мира лучи могут указывать на разные крепости. Если они расходятся, отойдите от центра вдоль одного из них и бросьте снова.
